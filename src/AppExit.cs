@@ -23,7 +23,7 @@
 
             Task.Run(() =>
             {
-                logger.Info("------ Wait for Exit ------");
+                logger.Info("------ Service Wait for Exit ------");
                 while (true)
                     Thread.Sleep(500); 
             }).Wait();

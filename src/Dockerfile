@@ -10,4 +10,4 @@ RUN apt-get install -y libgdiplus
 RUN apt-get install -y libc6-dev
 RUN ln -s /usr/lib/libgdiplus.so /usr/lib/gdiplus.dll
 
-ENTRYPOINT ["dotnet", "ser-service.dll"]
+ENTRYPOINT ["dotnet", "ser-engine-rest.dll"]
