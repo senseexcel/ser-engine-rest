@@ -89,6 +89,7 @@
                 {
                     var json = SerRestService.GetRequestTextData(rq);
                     var results = Service.CreateTask(json);
+
                     rp.AsText(JsonConvert.SerializeObject(results));
                 }, "POST");
 
@@ -101,14 +102,14 @@
                 Route.Add("/api/v1/task/{id}", (rq, rp, rargs) =>
                 {
                     var sra = ServiceRequestArgs.Create(rargs);
-                    var results = Service.GetTasks(sra.Id);
+                    var results = Service.GetTasks(sra?.Id);
                     rp.AsText(JsonConvert.SerializeObject(results));
                 }, "GET");
 
                 Route.Add("/api/v1/task/{id}", (rq, rp, rargs) =>
                 {
                     var sra = ServiceRequestArgs.Create(rargs);
-                    rp.AsText(Service.StopTasks(sra.Id));
+                    rp.AsText(Service.StopTasks(sra?.Id));
                 }, "DELETE");
 
                 Route.Add("/api/v1/task", (rq, rp, rargs) =>

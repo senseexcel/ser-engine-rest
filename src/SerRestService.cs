@@ -163,20 +163,24 @@
                         Directory.CreateDirectory(tempFolder);
                         File.WriteAllText(Path.Combine(tempFolder, "job.json"), jsonRequest, Encoding.UTF8);
                         var jObject = JObject.Parse(jsonRequest) as dynamic;
-                        JArray guidArray = jObject.uploadGuids;
-                        foreach (var item in guidArray)
+                        JArray guidArray = jObject?.uploadGuids ?? null;
+                        if (guidArray != null)
                         {
-                            var uploadFolder = Path.Combine(config.TempDir, item.Value<string>());
-                            logger.Debug($"Copy file from {uploadFolder} to {tempFolder}.");
-                            CopyFiles(uploadFolder, tempFolder);
+                            foreach (var item in guidArray)
+                            {
+                                var uploadFolder = Path.Combine(config.TempDir, item.Value<string>());
+                                logger.Debug($"Copy file from {uploadFolder} to {tempFolder}.");
+                                CopyFiles(uploadFolder, tempFolder);
+                            }
                         }
+                        logger.Debug($"The Task {taskId} was started.");
                         manager = CreateManager(tempFolder, true);
                         manager.Run();
                         logger.Debug($"The Task {taskId} was finished.");
                     }
                     catch (Exception ex)
                     {
-                        logger.Error(ex, "The task start failed.");
+                        logger.Error(ex, $"The task {taskId} failed.");
                     }
                 });
                 return taskId;
@@ -184,7 +188,7 @@
             catch (Exception ex)
             {
                 logger.Error(ex, "The task could not created.");
-                return "ERROR";
+                return null;
             }
         }
 
@@ -214,7 +218,6 @@
                         manager?.Stop();
                         Thread.Sleep(1000);
                     }
-                    return Delete(config.TempDir, taskId);
                 });
                 return "OK";
             }
@@ -225,7 +228,7 @@
             }
         }
 
-        public string GetTaskResult(Guid? taskId = null)
+        public string GetTaskResults(Guid? taskId = null)
         {
             try
             {
