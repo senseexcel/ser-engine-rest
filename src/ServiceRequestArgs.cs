@@ -131,11 +131,13 @@
                         logger.Debug("No filename found.");
                         return null;
                     }
-
                     result.Filename = fileValue;
                     if (post)
                         result.Data = GetRequestFileData(request);
                 }
+
+                var zipMode = request?.Headers["SerUnzip"]?.ToLowerInvariant() ?? "false";
+                result.Unzip = Boolean.Parse(zipMode);
                 return result;
             }
             catch (Exception ex)
