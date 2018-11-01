@@ -72,7 +72,7 @@
                     var fullname = Path.Combine(uploadFolder, args.Filename);
                     File.WriteAllBytes(fullname, args.Data);
                     if (args.Unzip)
-                        ZipFile.ExtractToDirectory(fullname, uploadFolder);
+                        ZipFile.ExtractToDirectory(fullname, uploadFolder, true);
                     logger.Debug($"Upload {uploadId} successfully.");
                 });
                 return uploadId.ToString();
