@@ -1,5 +1,5 @@
 ﻿# Build docker image
-FROM microsoft/dotnet:2.1-sdk
+FROM microsoft/dotnet:2.1-runtime
 
 WORKDIR /usr/src/app
 COPY . .

@@ -3,7 +3,9 @@
     #region Usings
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Net;
     using System.Text;
     using System.Web;
     using NLog;
@@ -19,6 +21,7 @@
         public Guid? Id { get; set; }
         public bool Unzip { get; set; }
         public string Filename { get; set; }
+        public byte[] Data { get; set; }
         #endregion
 
         #region Private Methods
@@ -71,10 +74,37 @@
                 logger.Error("Too many chars '?' found.");
             return split[0];
         }
+
+        private static byte[] GetRequestFileData(HttpListenerRequest request)
+        {
+            var mem = new MemoryStream();
+            try
+            {
+                if (!request.HasEntityBody)
+                {
+                    logger.Warn("No content in body found.");
+                    return null;
+                }
+
+                request.InputStream.CopyTo(mem);
+                var data = mem.ToArray();
+                return data;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"The request {request} could not readed.");
+                return null;
+            }
+            finally
+            {
+                mem.Close();
+                mem.Dispose();
+            }
+        }
         #endregion
 
         #region Publlic Methods
-        public static ServiceRequestArgs Parse(Dictionary<string, string> requestArgs)
+        public static ServiceRequestArgs Create(Dictionary<string, string> requestArgs, HttpListenerRequest request = null, bool post = false)
         {
             try
             {
@@ -91,6 +121,20 @@
                         default:
                             break;
                     }
+                }
+
+                if (request != null)
+                {
+                    var fileValue = request.Headers["SerFilename"];
+                    if (String.IsNullOrEmpty(fileValue))
+                    {
+                        logger.Debug("No filename found.");
+                        return null;
+                    }
+
+                    result.Filename = fileValue;
+                    if (post)
+                        result.Data = GetRequestFileData(request);
                 }
                 return result;
             }

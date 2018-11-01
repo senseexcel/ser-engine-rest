@@ -19,7 +19,7 @@
     using Ser.Api;
     #endregion
 
-    public class SerService
+    public class SerRestService
     {
         #region Logger
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -31,7 +31,7 @@
         #endregion
 
         #region Constructor
-        public SerService(ServiceParameter appConfig)
+        public SerRestService(ServiceParameter appConfig)
         {
             config = appConfig;
         }
@@ -61,7 +61,7 @@
             return new JobManager(GetJobParameter(workdir));
         }
 
-        private string UploadFile(byte[] fileData, Guid uploadId, ServiceRequestArgs args)
+        private string UploadFile(Guid uploadId, ServiceRequestArgs args)
         {
             try
             {
@@ -70,17 +70,17 @@
                     var uploadFolder = Path.Combine(config.TempDir, uploadId.ToString());
                     Directory.CreateDirectory(uploadFolder);
                     var fullname = Path.Combine(uploadFolder, args.Filename);
-                    File.WriteAllBytes(fullname, fileData);
-
+                    File.WriteAllBytes(fullname, args.Data);
                     if (args.Unzip)
                         ZipFile.ExtractToDirectory(fullname, uploadFolder);
+                    logger.Debug($"Upload {uploadId} successfully.");
                 });
                 return uploadId.ToString();
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"The file {args?.Filename} could not upload.");
-                return "ERROR";
+                logger.Error(ex, $"The file {args?.Filename} with id {uploadId} could not upload.");
+                return null;
             }
         }
 
@@ -91,7 +91,13 @@
                 if (id != null && id.HasValue)
                 {
                     var deleteFolder = Path.Combine(delfolder, id.ToString());
-                    Directory.Delete(deleteFolder, true);
+                    if (Directory.Exists(deleteFolder))
+                    {
+                        logger.Debug($"Delete folder {deleteFolder}");
+                        Directory.Delete(deleteFolder, true);
+                    }
+                    else
+                        logger.Debug($"Delete folder {deleteFolder} not exists.");
                 }
                 else
                 {
@@ -100,6 +106,7 @@
                     {
                         try
                         {
+                            logger.Debug($"Delete folder {folder}");
                             Directory.Delete(folder, true);
                         }
                         catch (Exception ex)
@@ -108,18 +115,40 @@
                         }
                     }
                 }
-                logger.Debug("The delete was completed.");
+                logger.Debug("The deletion was completed.");
                 return "OK";
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "The delete failed.");
-                return "ERROR";
+                logger.Error(ex, "The deletion failed.");
+                return null;
             }
         }
         #endregion
 
         #region Public Methods
+        public static string GetRequestTextData(HttpListenerRequest request)
+        {
+            try
+            {
+                if (!request.HasEntityBody)
+                    return null;
+
+                using (Stream body = request.InputStream)
+                {
+                    using (StreamReader reader = new StreamReader(body, request.ContentEncoding))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"The request {request} could not readed.");
+                return null;
+            }
+        }
+
         public string CreateTask(string jsonRequest)
         {
             try
@@ -213,6 +242,10 @@
                     manager = CreateManager(tempFolder);
                     manager.Load();
                 }
+
+                //Nur Datei über ID zurück geben
+
+
                 ZipArchive archive = null;
                 FileStream zipStream = null;
                 string zipPath = null;
@@ -289,71 +322,88 @@
             }
         }
 
-        public string UploadFile(byte[] fileData, ServiceRequestArgs args)
+        public string PostUploadFile(ServiceRequestArgs args)
         {
+            var newGuid = Guid.NewGuid();
             try
             {
-                var newGuid = Guid.NewGuid();
                 if (args.Id.HasValue)
                 {
                     logger.Debug($"Guid {args.Id} was found.");
                     newGuid = args.Id.Value;
                 }
-                if (String.IsNullOrEmpty(args.Filename))
+                if (args.Data == null)
+                    throw new Exception("No content to Upload.");
+                var resultId = UploadFile(newGuid, args);
+                if (!String.IsNullOrEmpty(resultId))
                 {
-                    logger.Error("A filename is requiered.");
-                    return "A filename is required";
+                    logger.Debug($"Upload {resultId} was started.");
+                    return JsonConvert.SerializeObject(resultId);
                 }
-                var results = UploadFile(fileData, newGuid, args);
-                logger.Debug("Upload successfully");
-                return JsonConvert.SerializeObject(results);
+                return null;
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "The upload was failed.");
-                return "ERROR";
+                logger.Error(ex, $"The upload {newGuid} was failed.");
+                return null;
             }
         }
 
-        public string DeleteUploads(ServiceRequestArgs args = null)
+        public byte[] GetUploadFile(ServiceRequestArgs args)
         {
             try
             {
-                return Delete(config.TempDir, args.Id);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "The delete failed.");
-                return "ERROR";
-            }
-        }
+                if(!args.Id.HasValue)
+                    throw new Exception("Upload id required. - No id");
 
-        public string GetUploadIds(Guid? uploadId = null)
-        {
-            try
-            {
-                var results = new List<string>();
-                if (uploadId != null && uploadId.HasValue)
+                //single file
+                var uploadPath = String.Empty;
+                if (!String.IsNullOrEmpty(args.Filename))
                 {
-                    var folder = Path.Combine(config.TempDir, uploadId.ToString());
-                    if (Directory.Exists(folder))
+                    uploadPath = Path.Combine(config.TempDir, args.Id.Value.ToString(), args.Filename);
+                    if (File.Exists(uploadPath))
                     {
-                        results.Add(uploadId.ToString());
-                        return JsonConvert.SerializeObject(results);
+                        logger.Debug($"Find file {uploadPath}");
+                        return File.ReadAllBytes(uploadPath);
                     }
-                    logger.Debug($"No folder {folder} found.");
                 }
-                var folders = Directory.GetDirectories(config.TempDir, "*.*", SearchOption.TopDirectoryOnly);
-                if(folders.Length == 0)
-                    logger.Debug($"No folder found.");
-                foreach (var folder in folders)
-                    results.Add(folder.Split(new string[] { "\\", "/" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
-                return JsonConvert.SerializeObject(results);
+
+                //all files
+                uploadPath = Path.Combine(config.TempDir, args.Id.Value.ToString());
+                var zipPath = Path.Combine(config.TempDir, $"{Guid.NewGuid().ToString()}.zip");
+                logger.Debug($"Create zip file {zipPath}");
+                var zipStream = new FileStream(zipPath, FileMode.Create);
+                var archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
+                var files = Directory.GetFiles(uploadPath);
+                foreach (var file in files)
+                    archive.CreateEntryFromFile(file, Path.GetFileName(file));
+                archive.Dispose();
+                zipStream.Close();
+                zipStream.Dispose();
+                var zipData = File.ReadAllBytes(zipPath);
+                logger.Debug($"File Size: {zipData.Length}");
+                logger.Debug($"Remove zip file {zipPath}");
+                File.Delete(zipPath);
+                logger.Debug("Finish to send.");
+                return zipData;
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "The files could not be determined.");
-                return "ERROR";
+                logger.Error(ex);
+                return null;
+            }
+        }
+
+        public string DeleteUpload(ServiceRequestArgs args = null)
+        {
+            try
+            {
+                return Delete(config.TempDir, args?.Id);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "The deletion failed.");
+                return null;
             }
         }
         #endregion
