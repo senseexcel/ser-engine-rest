@@ -26,14 +26,15 @@
         #endregion
 
         #region Properites && Variables
-        private JobManager manager = null;
-        private ServiceParameter config = null;
+        private static Dictionary<Guid, JobManager> managers = null;
+        private static ServiceParameter config = null;
         #endregion
 
         #region Constructor
         public SerRestService(ServiceParameter appConfig)
         {
             config = appConfig;
+            managers = new Dictionary<Guid, JobManager>();
         }
         #endregion
 
@@ -54,43 +55,40 @@
             return new AppParameter(args);
         }
 
-        private JobManager CreateManager(string workdir, bool createNew = false)
+        private JobManager CreateManager(string workdir)
         {
-            if (manager != null && !createNew)
-                return manager;
             return new JobManager(GetJobParameter(workdir));
         }
 
-        private string UploadFile(Guid uploadId, ServiceRequestArgs args)
+        private bool UploadFile(Guid uploadId, ServiceRequestArgs args)
         {
             try
             {
-                Task.Run(() =>
+                var uploadFolder = Path.Combine(config.TempDir, uploadId.ToString());
+                Directory.CreateDirectory(uploadFolder);
+                var fullname = Path.Combine(uploadFolder, args.Filename);
+                File.WriteAllBytes(fullname, args.PostData);
+                if (args.Unzip)
                 {
-                    var uploadFolder = Path.Combine(config.TempDir, uploadId.ToString());
-                    Directory.CreateDirectory(uploadFolder);
-                    var fullname = Path.Combine(uploadFolder, args.Filename);
-                    File.WriteAllBytes(fullname, args.Data);
-                    if (args.Unzip)
-                        ZipFile.ExtractToDirectory(fullname, uploadFolder, true);
-                    logger.Debug($"Upload {uploadId} successfully.");
-                });
-                return uploadId.ToString();
+                    logger.Debug($"Unzip file {fullname}");
+                    ZipFile.ExtractToDirectory(fullname, uploadFolder, true);
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 logger.Error(ex, $"The file {args?.Filename} with id {uploadId} could not upload.");
-                return null;
+                return false;
             }
         }
 
-        private string Delete(string delfolder, Guid? id = null)
+        private void Delete(Guid? id = null)
         {
             try
             {
                 if (id != null && id.HasValue)
                 {
-                    var deleteFolder = Path.Combine(delfolder, id.ToString());
+                    var deleteFolder = Path.Combine(config.TempDir, id.ToString());
                     if (Directory.Exists(deleteFolder))
                     {
                         logger.Debug($"Delete folder {deleteFolder}");
@@ -101,7 +99,7 @@
                 }
                 else
                 {
-                    var folders = Directory.GetDirectories(delfolder, "*.*", SearchOption.TopDirectoryOnly);
+                    var folders = Directory.GetDirectories(config.TempDir, "*.*", SearchOption.TopDirectoryOnly);
                     foreach (var folder in folders)
                     {
                         try
@@ -116,234 +114,54 @@
                     }
                 }
                 logger.Debug("The deletion was completed.");
-                return "OK";
             }
             catch (Exception ex)
             {
                 logger.Error(ex, "The deletion failed.");
-                return null;
             }
+        }
+
+        private bool CheckId(ServiceRequestArgs args)
+        {
+            if (args != null && args?.Id == null)
+            {
+                logger.Warn("A Id is required. No Id found.");
+                return false;
+            }
+            return true;
         }
         #endregion
 
-        #region Public Methods
-        public static string GetRequestTextData(HttpListenerRequest request)
-        {
-            try
-            {
-                if (!request.HasEntityBody)
-                    return null;
-
-                using (Stream body = request.InputStream)
-                {
-                    using (StreamReader reader = new StreamReader(body, request.ContentEncoding))
-                    {
-                        return reader.ReadToEnd();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, $"The request {request} could not readed.");
-                return null;
-            }
-        }
-
-        public string CreateTask(string jsonRequest)
-        {
-            try
-            {
-                logger.Trace($"JSONREQUEST: {jsonRequest}");
-                var taskId = Guid.NewGuid().ToString();
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        var tempFolder = Path.Combine(config.TempDir, taskId);
-                        Directory.CreateDirectory(tempFolder);
-                        File.WriteAllText(Path.Combine(tempFolder, "job.json"), jsonRequest, Encoding.UTF8);
-                        var jObject = JObject.Parse(jsonRequest) as dynamic;
-                        JArray guidArray = jObject?.uploadGuids ?? null;
-                        if (guidArray != null)
-                        {
-                            foreach (var item in guidArray)
-                            {
-                                var uploadFolder = Path.Combine(config.TempDir, item.Value<string>());
-                                logger.Debug($"Copy file from {uploadFolder} to {tempFolder}.");
-                                CopyFiles(uploadFolder, tempFolder);
-                            }
-                        }
-                        logger.Debug($"The Task {taskId} was started.");
-                        manager = CreateManager(tempFolder, true);
-                        manager.Run();
-                        logger.Debug($"The Task {taskId} was finished.");
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex, $"The task {taskId} failed.");
-                    }
-                });
-                return taskId;
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "The task could not created.");
-                return null;
-            }
-        }
-
-        public string StopTasks(Guid? taskId = null)
-        {
-            try
-            {
-                Task.Run(() =>
-                {
-                    if (taskId != null && taskId.HasValue)
-                    {
-                        var tempFolder = Path.Combine(config.TempDir, taskId.Value.ToString());
-                        manager = CreateManager(tempFolder);
-                        manager.Load();
-                        var task = manager?.Tasks.FirstOrDefault(t => t.JobParameters.WorkDir.Contains(taskId.ToString())) ?? null;
-                        if (task != null)
-                        {
-                            manager?.Stop(task.Id);
-                            Thread.Sleep(1000);
-                            logger.Debug($"The Task {taskId.Value} was stopped.");
-                        }
-                        else
-                            logger.Warn($"The Task {taskId.Value} was not found.");
-                    }
-                    else
-                    {
-                        manager?.Stop();
-                        Thread.Sleep(1000);
-                    }
-                });
-                return "OK";
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "The engine could not be stopped properly.");
-                return "ERROR";
-            }
-        }
-
-        public string GetTaskResults(Guid? taskId = null)
-        {
-            try
-            {
-                if (!taskId.HasValue)
-                {
-                    logger.Debug($"No Task id in the request.");
-                    return null;
-                }
-
-                logger.Debug($"Get the result of the Task {taskId.Value}.");
-                var tempFolder = Path.Combine(config.TempDir, taskId.Value.ToString());
-                if (manager == null)
-                {
-                    manager = CreateManager(tempFolder);
-                    manager.Load();
-                }
-
-                //Nur Datei über ID zurück geben
-
-
-                ZipArchive archive = null;
-                FileStream zipStream = null;
-                string zipPath = null;
-                var task = manager?.Tasks.FirstOrDefault(t => t.JobParameters.WorkDir.Contains(taskId.ToString())) ?? null;
-                if (task != null && task?.Status == TaskStatusInfo.SUCCESS)
-                {
-                    foreach (var result in task.Results)
-                    {
-                        foreach (var report in result.Reports)
-                        {
-                            if (report.Paths.Count == 1)
-                            {
-                                var path = report.Paths.FirstOrDefault() ?? null;
-                                if (File.Exists(path))
-                                    return path;
-                            }
-                            else
-                            {
-                                if (archive == null)
-                                {
-                                    zipPath = Path.Combine(task.JobParameters.WorkDir, "reports.zip");
-                                    zipStream = new FileStream(zipPath, FileMode.Create);
-                                    archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
-                                }
-                                foreach (var path in report.Paths)
-                                    archive.CreateEntryFromFile(path, Path.GetFileName(path));
-                            }
-                        }
-                    }
-
-                    archive.Dispose();
-                    zipStream.Close();
-                    zipStream.Dispose();
-                    return zipPath;
-                }
-                return null;
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "The task result could not found.");
-                return null;
-            }
-        }
-
-        public List<JobResult> GetTasks(Guid? taskId = null)
-        {
-            try
-            {
-                if (taskId != null && taskId.HasValue)
-                {
-                    var tempFolder = Path.Combine(config.TempDir, taskId.Value.ToString());
-                    manager = CreateManager(tempFolder);
-                    manager.Load();
-                    logger.Debug($"Get the result of the Task {taskId.Value}.");
-                    return manager?.Tasks.FirstOrDefault(t => t.JobParameters.WorkDir.Contains(taskId.ToString())).Results ?? new List<JobResult>();
-                }
-                else
-                {
-                    logger.Debug($"Get the result of all tasks.");
-                    var results = new List<JobResult>();
-                    var folders = Directory.GetDirectories(config.TempDir, "*.*", SearchOption.TopDirectoryOnly);
-                    foreach (var folder in folders)
-                    {
-                        var para = GetJobParameter(folder);
-                        results.AddRange(ReportingTask.GetAllResultsFromJob(para));
-                    }
-                    return results;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "The task result could not found.");
-                return new List<JobResult>();
-            }
-        }
-
+        #region Public File Methods
         public string PostUploadFile(ServiceRequestArgs args)
         {
             var newGuid = Guid.NewGuid();
             try
             {
-                if (args.Id.HasValue)
+                if (args?.Id != null)
                 {
-                    logger.Debug($"Guid {args.Id} was found.");
+                    logger.Debug($"Guid {args?.Id} was found.");
                     newGuid = args.Id.Value;
                 }
-                if (args.Data == null)
-                    throw new Exception("No content to Upload.");
-                var resultId = UploadFile(newGuid, args);
-                if (!String.IsNullOrEmpty(resultId))
+                Task.Run(() =>
                 {
-                    logger.Debug($"Upload {resultId} was started.");
-                    return JsonConvert.SerializeObject(resultId);
-                }
-                return null;
+                    if(String.IsNullOrEmpty(args?.Filename))
+                    {
+                        logger.Error("No Filename found.");
+                        return;
+                    }
+                    if (args?.PostData == null)
+                    {
+                        logger.Error("No content to Upload.");
+                        return;
+                    }
+                    var result = UploadFile(newGuid, args);
+                    if (result)
+                        logger.Debug($"Upload {newGuid} successfully.");
+                    else
+                        logger.Debug($"Upload {newGuid} was failed.");
+                });
+                return newGuid.ToString();
             }
             catch (Exception ex)
             {
@@ -356,7 +174,7 @@
         {
             try
             {
-                if(!args.Id.HasValue)
+                if (!args.Id.HasValue)
                     throw new Exception("Upload id required. - No id");
 
                 //single file
@@ -374,7 +192,7 @@
                 //all files
                 uploadPath = Path.Combine(config.TempDir, args.Id.Value.ToString());
                 var zipPath = Path.Combine(config.TempDir, $"{Guid.NewGuid().ToString()}.zip");
-                logger.Debug($"Create zip file {zipPath}");
+                logger.Info($"Create zip file \"{zipPath}\"");
                 var zipStream = new FileStream(zipPath, FileMode.Create);
                 var archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
                 var files = Directory.GetFiles(uploadPath);
@@ -385,14 +203,14 @@
                 zipStream.Dispose();
                 var zipData = File.ReadAllBytes(zipPath);
                 logger.Debug($"File Size: {zipData.Length}");
-                logger.Debug($"Remove zip file {zipPath}");
+                logger.Debug($"Remove zip file \"{zipPath}\"");
                 File.Delete(zipPath);
                 logger.Debug("Finish to send.");
                 return zipData;
             }
             catch (Exception ex)
             {
-                logger.Error(ex);
+                logger.Error(ex, $"The call failed.");
                 return null;
             }
         }
@@ -401,11 +219,153 @@
         {
             try
             {
-                return Delete(config.TempDir, args?.Id);
+                if(!CheckId(args))
+                    return null;
+
+                Task.Run(() =>
+                {
+                    Delete(args?.Id);
+                });
+                return "OK";
             }
             catch (Exception ex)
             {
                 logger.Error(ex, "The deletion failed.");
+                return null;
+            }
+        }
+        #endregion
+
+        #region Public Task Methods
+        public string CreateTask(ServiceRequestArgs args)
+        {
+            try
+            {
+                logger.Trace($"JSONREQUEST: {args?.PostText}");
+                if(String.IsNullOrEmpty(args?.PostText))
+                {
+                    logger.Error("The json request was emtpy.");
+                    return null;
+                }
+                var taskId = Guid.NewGuid();
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        var tempFolder = Path.Combine(config.TempDir, taskId.ToString());
+                        Directory.CreateDirectory(tempFolder);
+                        File.WriteAllText(Path.Combine(tempFolder, "job.json"), args.PostText, Encoding.UTF8);
+                        var jObject = JObject.Parse(args.PostText) as dynamic;
+                        JArray guidArray = jObject?.uploadGuids ?? null;
+                        if (guidArray != null)
+                        {
+                            foreach (var item in guidArray)
+                            {
+                                var uploadFolder = Path.Combine(config.TempDir, item.Value<string>());
+                                logger.Debug($"Copy file from {uploadFolder} to {tempFolder}.");
+                                CopyFiles(uploadFolder, tempFolder);
+                            }
+                        }
+                        logger.Debug($"The Task {taskId} was started.");
+                        var manager = CreateManager(tempFolder);
+                        managers.Add(taskId, manager);
+                        manager.Run();
+                        logger.Debug($"The Task {taskId} was finished.");
+                        managers.Remove(taskId);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, $"The task {taskId} failed.");
+                    }
+                });
+                return taskId.ToString();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "The task could not created.");
+                return null;
+            }
+        }
+
+        public List<JobResult> GetTasks(ServiceRequestArgs args = null)
+        {
+            var results = new List<JobResult>();
+
+            try
+            {
+                if (!CheckId(args))
+                    return results;
+
+                if (args != null && args?.Id != null)
+                {
+                    var taskFolder = Path.Combine(config.TempDir, args.Id.Value.ToString());
+                    var para = GetJobParameter(taskFolder);
+                    results.AddRange(ReportingTask.GetAllResultsFromJob(para));
+                    logger.Debug($"Get the results of the Task {args.Id.Value}.");
+                    return results;
+                }
+                else
+                {
+                    logger.Debug($"Get the result of all tasks.");
+                    var folders = Directory.GetDirectories(config.TempDir, "*.json", SearchOption.TopDirectoryOnly);
+                    foreach (var folder in folders)
+                    {
+                        var para = GetJobParameter(folder);
+                        results.AddRange(ReportingTask.GetAllResultsFromJob(para));
+                    }
+                    return results;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "The task result could not found.");
+                return new List<JobResult>();
+            }
+        }
+
+        public string StopTasks(ServiceRequestArgs args = null)
+        {
+            try
+            {
+                if (!CheckId(args))
+                    return null;
+
+                Task.Run(() =>
+                {
+                    if (args != null && args.Id != null)
+                    {
+                        var tempFolder = Path.Combine(config.TempDir, args.Id.Value.ToString());
+                        managers.TryGetValue(args.Id.Value, out var manager);
+                        if (manager != null)
+                        {
+                            manager.Load();
+                            var task = manager?.Tasks.FirstOrDefault(t => t.JobParameters.WorkDir.Contains(args.Id.ToString())) ?? null;
+                            if (task != null)
+                            {
+                                manager.Stop(task.Id);
+                                logger.Debug($"The task {args.Id.Value} was stopped.");
+                            }
+                            else
+                                logger.Warn($"The task {args.Id.Value} was not found.");
+                        }
+                        else
+                            logger.Debug($"No job manager with id {args.Id.Value} found.");
+                    }
+                    else
+                    {
+                        foreach (var manager in managers)
+                        {
+                            logger.Debug($"The task {manager.Key} was stopped.");
+                            manager.Value.Stop();
+                        }
+                        logger.Debug($"All tasks was stopped.");
+                    }
+                });
+                return "OK";
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "The engine could not be stopped properly.");
                 return null;
             }
         }

@@ -6,6 +6,7 @@
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Net.Http;
     using System.Text;
     using System.Web;
     using NLog;
@@ -21,7 +22,8 @@
         public Guid? Id { get; set; }
         public bool Unzip { get; set; }
         public string Filename { get; set; }
-        public byte[] Data { get; set; }
+        public byte[] PostData { get; set; }
+        public string PostText { get; set; }
         #endregion
 
         #region Private Methods
@@ -82,7 +84,7 @@
             {
                 if (!request.HasEntityBody)
                 {
-                    logger.Warn("No content in body found.");
+                    logger.Warn("The content is empty.");
                     return null;
                 }
 
@@ -101,10 +103,71 @@
                 mem.Dispose();
             }
         }
+
+        private static string GetRequestTextData(HttpListenerRequest request)
+        {
+            try
+            {
+                if (!request.HasEntityBody)
+                {
+                    logger.Warn("The text content is empty.");
+                    return null;
+                }
+
+                using (Stream body = request.InputStream)
+                {
+                    using (StreamReader reader = new StreamReader(body, request.ContentEncoding))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"The request {request} could not readed.");
+                return null;
+            }
+        }
         #endregion
 
         #region Publlic Methods
-        public static ServiceRequestArgs Create(Dictionary<string, string> requestArgs, HttpListenerRequest request = null, bool post = false)
+        public static ServiceRequestArgs FromFile(Dictionary<string, string> requestArgs, HttpListenerRequest request = null)
+        {
+            var result = Create(requestArgs, request);
+            if (request != null)
+            {
+                var fileValue = request.Headers["SerFilename"];
+                if (String.IsNullOrEmpty(fileValue))
+                {
+                    if (request.HttpMethod.ToUpperInvariant() == "POST")
+                    {
+                        logger.Warn("The filename is empty.");
+                        return null;
+                    }
+                    else
+                        logger.Debug("The filename is empty.");
+                }
+                result.Filename = fileValue;
+                if (request.HttpMethod.ToUpperInvariant() == "POST")
+                    result.PostData = GetRequestFileData(request);
+            }
+            var zipMode = request?.Headers["SerUnzip"]?.ToLowerInvariant() ?? "false";
+            result.Unzip = Boolean.Parse(zipMode);
+            return result;
+        }
+
+        public static ServiceRequestArgs FromTask(Dictionary<string, string> requestArgs, HttpListenerRequest request = null)
+        {
+            var result = Create(requestArgs, request);
+            if (request != null)
+            {
+                if (request.HttpMethod.ToUpperInvariant() == "POST")
+                    result.PostText = GetRequestTextData(request);
+            }
+            return result;
+        }
+
+        private static ServiceRequestArgs Create(Dictionary<string, string> requestArgs, HttpListenerRequest request = null)
         {
             try
             {
@@ -122,22 +185,6 @@
                             break;
                     }
                 }
-
-                if (request != null)
-                {
-                    var fileValue = request.Headers["SerFilename"];
-                    if (String.IsNullOrEmpty(fileValue))
-                    {
-                        logger.Debug("No filename found.");
-                        return null;
-                    }
-                    result.Filename = fileValue;
-                    if (post)
-                        result.Data = GetRequestFileData(request);
-                }
-
-                var zipMode = request?.Headers["SerUnzip"]?.ToLowerInvariant() ?? "false";
-                result.Unzip = Boolean.Parse(zipMode);
                 return result;
             }
             catch (Exception ex)

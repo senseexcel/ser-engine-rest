@@ -40,28 +40,28 @@
                 #region File Opteration Routes
                 Route.Add("/api/v1/file", (rq, rp, rargs) =>
                 {
-                    var sra = ServiceRequestArgs.Create(rargs, rq, true);
+                    var sra = ServiceRequestArgs.FromFile(rargs, rq);
                     var result = Service.PostUploadFile(sra);
                     if (result == null)
-                        result = "Upload was failed.";
-                    rp.AsText(result);
+                        result = "ERROR";
+                    rp.AsText(JsonConvert.SerializeObject(result));
                 }, "POST");
 
                 Route.Add("/api/v1/file/{id}", (rq, rp, rargs) =>
                 {
-                    var sra = ServiceRequestArgs.Create(rargs, rq, true);
+                    var sra = ServiceRequestArgs.FromFile(rargs, rq);
                     var result = Service.PostUploadFile(sra);
                     if (result == null)
-                        result = "Upload was failed.";
-                    rp.AsText(result);
+                        result = "ERROR";
+                    rp.AsText(JsonConvert.SerializeObject(result));
                 }, "POST");
 
                 Route.Add("/api/v1/file/{id}", (rq, rp, rargs) =>
                 {
-                    var sra = ServiceRequestArgs.Create(rargs, rq);
+                    var sra = ServiceRequestArgs.FromFile(rargs, rq);
                     var data = Service.GetUploadFile(sra);
                     if (data == null)
-                        rp.AsText("No Data found.");
+                        rp.AsText(JsonConvert.SerializeObject("ERROR"));
                     else
                         rp.AsBytes(rq, data);
                 }, "GET");
@@ -70,51 +70,55 @@
                 {
                     var result = Service.DeleteUpload();
                     if (result == null)
-                        result = "The deletion failed.";
-                    rp.AsText(result);
+                        result = "ERROR";
+                    rp.AsText(JsonConvert.SerializeObject(result));
                 }, "DELETE");
 
                 Route.Add("/api/v1/file/{id}", (rq, rp, rargs) =>
                 {
-                    var sra = ServiceRequestArgs.Create(rargs);
+                    var sra = ServiceRequestArgs.FromFile(rargs);
                     var result = Service.DeleteUpload(sra);
                     if(result == null)
-                        result = "The deletion failed.";
-                    rp.AsText(result);
+                        result = "ERROR";
+                    rp.AsText(JsonConvert.SerializeObject(result));
                 }, "DELETE");
                 #endregion
 
                 #region Task Opteration Routes
                 Route.Add("/api/v1/task", (rq, rp, rargs) =>
                 {
-                    var json = SerRestService.GetRequestTextData(rq);
-                    var results = Service.CreateTask(json);
-
-                    rp.AsText(JsonConvert.SerializeObject(results));
+                    var sra = ServiceRequestArgs.FromTask(rargs, rq);
+                    var result = Service.CreateTask(sra);
+                    if (result == null)
+                        result = "ERROR";
+                    rp.AsText(JsonConvert.SerializeObject(result));
                 }, "POST");
 
                 Route.Add("/api/v1/task", (rq, rp, rargs) =>
                 {
-                    var results = Service.GetTasks();
-                    rp.AsText(JsonConvert.SerializeObject(results));
+                    var result = Service.GetTasks();
+                    rp.AsText(JsonConvert.SerializeObject(result));
                 }, "GET");
 
                 Route.Add("/api/v1/task/{id}", (rq, rp, rargs) =>
                 {
-                    var sra = ServiceRequestArgs.Create(rargs);
-                    var results = Service.GetTasks(sra?.Id);
-                    rp.AsText(JsonConvert.SerializeObject(results));
+                    var sra = ServiceRequestArgs.FromTask(rargs);
+                    var result = Service.GetTasks(sra);
+                    rp.AsText(JsonConvert.SerializeObject(result));
                 }, "GET");
 
                 Route.Add("/api/v1/task/{id}", (rq, rp, rargs) =>
                 {
-                    var sra = ServiceRequestArgs.Create(rargs);
-                    rp.AsText(Service.StopTasks(sra?.Id));
+                    var sra = ServiceRequestArgs.FromTask(rargs);
+                    var result = Service.StopTasks(sra);
+                    if (result == null)
+                        result = "ERROR";
+                    rp.AsText(JsonConvert.SerializeObject(result));
                 }, "DELETE");
 
                 Route.Add("/api/v1/task", (rq, rp, rargs) =>
                 {
-                    rp.AsText(Service.StopTasks());
+                    rp.AsText(JsonConvert.SerializeObject(Service.StopTasks()));
                 }, "DELETE");
                 #endregion
 
