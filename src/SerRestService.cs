@@ -41,11 +41,18 @@
         #region Private Methods
         private void CopyFiles(string sourceFolder, string targetFolder)
         {
-            var files = Directory.GetFiles(sourceFolder, "*.*", SearchOption.TopDirectoryOnly);
-            foreach (var file in files)
+            try
             {
-                var destPath = Path.Combine(targetFolder, Path.GetFileName(file));
-                File.Copy(file, destPath, true);
+                var files = Directory.GetFiles(sourceFolder, "*.*", SearchOption.TopDirectoryOnly);
+                foreach (var file in files)
+                {
+                    var destPath = Path.Combine(targetFolder, Path.GetFileName(file));
+                    File.Copy(file, destPath, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Copy Progess failed.");
             }
         }
 
