@@ -17,7 +17,7 @@
 
         #region Properties
         public bool UseHttps { get; set; }
-        public int Port { get; set; } = 11271;
+        public int Port { get; set; } = 80;
         public string TempDir { get; set; }
         #endregion
 

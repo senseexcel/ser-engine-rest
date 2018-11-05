@@ -3,7 +3,7 @@ FROM microsoft/dotnet:2.1-runtime
 
 WORKDIR /usr/src/app
 COPY . .
-EXPOSE 11271
+EXPOSE 80
 
 RUN apt-get update
 RUN apt-get install -y libgdiplus
