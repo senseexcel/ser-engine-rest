@@ -52,7 +52,7 @@
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Copy Progess failed.");
+                logger.Error(ex, $"Copy Progress from {sourceFolder} to {targetFolder} failed.");
             }
         }
 
@@ -261,7 +261,6 @@
                     {
                         var tempFolder = Path.Combine(config.TempDir, taskId.ToString());
                         Directory.CreateDirectory(tempFolder);
-                        File.WriteAllText(Path.Combine(tempFolder, "job.json"), args.PostText, Encoding.UTF8);
                         var jObject = JObject.Parse(args.PostText) as dynamic;
                         JArray guidArray = jObject?.uploadGuids ?? null;
                         if (guidArray != null)
@@ -276,7 +275,7 @@
                         logger.Debug($"The Task {taskId} was started.");
                         var manager = CreateManager(tempFolder);
                         managers.Add(taskId, manager);
-                        manager.Run();
+                        manager.Run(args.PostText);
                         logger.Debug($"The Task {taskId} was finished.");
                         managers.Remove(taskId);
                     }
@@ -345,7 +344,6 @@
                         managers.TryGetValue(args.Id.Value, out var manager);
                         if (manager != null)
                         {
-                            manager.Load();
                             var task = manager?.Tasks.FirstOrDefault(t => t.JobParameters.WorkDir.Contains(args.Id.ToString())) ?? null;
                             if (task != null)
                             {
