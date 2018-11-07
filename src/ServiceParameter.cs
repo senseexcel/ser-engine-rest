@@ -17,7 +17,7 @@
 
         #region Properties
         public bool UseHttps { get; set; }
-        public int Port { get; set; } = 80;
+        public int Port { get; set; }
         public string TempDir { get; set; }
         #endregion
 
@@ -37,7 +37,7 @@
             appArgs.Setup<int>(arg => arg.Port)
                     .As('p', "port")
                     .WithDescription("The port for listening.")
-                    .SetDefault(11271);
+                    .SetDefault(80);
             appArgs.Setup<string>(arg => arg.TempDir)
                     .As('w', "workdir")
                     .WithDescription("The path to the work dir.")
