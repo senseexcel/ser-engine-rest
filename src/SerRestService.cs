@@ -80,6 +80,19 @@
                     logger.Debug($"Unzip file {fullname}");
                     ZipFile.ExtractToDirectory(fullname, uploadFolder, true);
                 }
+                if(!String.IsNullOrEmpty(args.CopyFolder))
+                {
+                    var copyFiles = Directory.GetFiles(uploadFolder, "*.*", SearchOption.AllDirectories);
+                    foreach (var copyFile in copyFiles)
+                    {
+                        if (Path.GetExtension(copyFile).ToLowerInvariant() == ".zip" && args.Unzip == true)
+                            continue;
+                        var relPath = copyFile.Replace($"{uploadFolder}{Path.DirectorySeparatorChar}", "");
+                        var destFile = Path.Combine(args.CopyFolder, relPath);
+                        Directory.CreateDirectory(Path.GetDirectoryName(destFile));
+                        File.Copy(copyFile, destFile, true);
+                    }
+                }
                 return true;
             }
             catch (Exception ex)
