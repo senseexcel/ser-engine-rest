@@ -22,7 +22,6 @@
         public Guid? Id { get; set; }
         public bool Unzip { get; set; }
         public string Filename { get; set; }
-        public string CopyFolder { get; set; }
         public byte[] PostData { get; set; }
         public string PostText { get; set; }
         #endregion
@@ -154,10 +153,6 @@
             }
             var zipMode = request?.Headers["SerUnzip"]?.ToLowerInvariant() ?? "false";
             result.Unzip = Boolean.Parse(zipMode);
-
-            var copyFolder = request?.Headers["SerCopyFolder"]?.ToLowerInvariant() ?? null;
-            result.CopyFolder = copyFolder;
-
             return result;
         }
 

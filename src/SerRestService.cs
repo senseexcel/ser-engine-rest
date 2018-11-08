@@ -43,11 +43,18 @@
         {
             try
             {
-                var files = Directory.GetFiles(sourceFolder, "*.*", SearchOption.TopDirectoryOnly);
-                foreach (var file in files)
+                if (!Directory.Exists(sourceFolder))
+                    throw new Exception($"The Folder {sourceFolder} does not exits.");
+                var copyFiles = Directory.GetFiles(sourceFolder, "*.*", SearchOption.AllDirectories);
+                foreach (var copyFile in copyFiles)
                 {
-                    var destPath = Path.Combine(targetFolder, Path.GetFileName(file));
-                    File.Copy(file, destPath, true);
+                    if (Path.GetExtension(copyFile).ToLowerInvariant() == ".zip")
+                        continue;
+                    var relPath = copyFile.Replace($"{sourceFolder}{Path.DirectorySeparatorChar}", "");
+                    var destFile = Path.Combine(targetFolder, relPath);
+                    Directory.CreateDirectory(Path.GetDirectoryName(destFile));
+                    logger.Debug($"Copy File: {copyFile} to {destFile}");
+                    File.Copy(copyFile, destFile, true);
                 }
             }
             catch (Exception ex)
@@ -79,19 +86,6 @@
                 {
                     logger.Debug($"Unzip file {fullname}");
                     ZipFile.ExtractToDirectory(fullname, uploadFolder, true);
-                }
-                if(!String.IsNullOrEmpty(args.CopyFolder))
-                {
-                    var copyFiles = Directory.GetFiles(uploadFolder, "*.*", SearchOption.AllDirectories);
-                    foreach (var copyFile in copyFiles)
-                    {
-                        if (Path.GetExtension(copyFile).ToLowerInvariant() == ".zip" && args.Unzip == true)
-                            continue;
-                        var relPath = copyFile.Replace($"{uploadFolder}{Path.DirectorySeparatorChar}", "");
-                        var destFile = Path.Combine(args.CopyFolder, relPath);
-                        Directory.CreateDirectory(Path.GetDirectoryName(destFile));
-                        File.Copy(copyFile, destFile, true);
-                    }
                 }
                 return true;
             }
