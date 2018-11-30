@@ -8,13 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspose.Cells" Version="18.10.0" />
-    <PackageReference Include="enigma.net" Version="0.14.0-alpha0008" />
+    <PackageReference Include="Aspose.Cells" Version="18.11.0" />
+    <PackageReference Include="enigma.net" Version="0.14.0-alpha0015" />
     <PackageReference Include="FluentCommandLineParser-netstandard" Version="1.4.3.13" />
     <PackageReference Include="Hjson" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="NLog" Version="4.5.10" />
+    <PackageReference Include="NLog" Version="4.5.11" />
     <PackageReference Include="qlik-engineapi" Version="0.3.0-alpha0003" />
+    <PackageReference Include="SerApi" Version="3.4.0" />
     <PackageReference Include="Simple-HTTP" Version="1.0.6" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
@@ -22,9 +23,6 @@
   <ItemGroup>
     <Reference Include="ser-engine">
       <HintPath>..\..\ser-engine\src\bin\Release\netcoreapp2.1\publish\ser-engine.dll</HintPath>
-    </Reference>
-    <Reference Include="SerApi">
-      <HintPath>..\..\ser-engine\src\bin\Release\netcoreapp2.1\publish\SerApi.dll</HintPath>
     </Reference>
   </ItemGroup>
   
