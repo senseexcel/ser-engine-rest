@@ -25,7 +25,7 @@
             {
                 logger.Info("------ Service Wait for Exit ------");
                 while (true)
-                    Thread.Sleep(500); 
+                    Thread.Sleep(500);
             }).Wait();
             CancelTasks(cts);
             WaitTasks(tasks);

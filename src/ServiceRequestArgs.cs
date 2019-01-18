@@ -56,7 +56,7 @@
 
         private static Guid? ParseGuid(string value)
         {
-            if(Guid.TryParse(value, out var id))
+            if (Guid.TryParse(value, out var id))
                 return id;
             return null;
         }
