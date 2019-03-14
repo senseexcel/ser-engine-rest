@@ -1,5 +1,5 @@
 ﻿namespace Ser.Engine.Rest
-{ 
+{
     #region Usings
     using NLog;
     using NLog.Config;
@@ -78,7 +78,7 @@
                 {
                     var sra = ServiceRequestArgs.FromFile(rargs);
                     var result = Service.DeleteUpload(sra);
-                    if(result == null)
+                    if (result == null)
                         result = "ERROR";
                     rp.AsText(JsonConvert.SerializeObject(result));
                 }, "DELETE");

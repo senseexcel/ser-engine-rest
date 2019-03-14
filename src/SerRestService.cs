@@ -159,7 +159,7 @@
                 }
                 Task.Run(() =>
                 {
-                    if(String.IsNullOrEmpty(args?.Filename))
+                    if (String.IsNullOrEmpty(args?.Filename))
                     {
                         logger.Error("No Filename found.");
                         return;
@@ -233,7 +233,7 @@
         {
             try
             {
-                if(!CheckId(args))
+                if (!CheckId(args))
                     return null;
 
                 Task.Run(() =>
@@ -256,7 +256,7 @@
             try
             {
                 logger.Trace($"JSONREQUEST: {args?.PostText}");
-                if(String.IsNullOrEmpty(args?.PostText))
+                if (String.IsNullOrEmpty(args?.PostText))
                 {
                     logger.Error("The json request was emtpy.");
                     return null;

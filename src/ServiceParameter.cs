@@ -22,7 +22,7 @@
         #endregion
 
         #region Constructor
-        public ServiceParameter() {}
+        public ServiceParameter() { }
 
         public ServiceParameter(string[] args)
         {
