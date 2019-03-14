@@ -1,151 +1,92 @@
-﻿namespace Ser.Engine.Rest
+﻿#region License
+/*
+Copyright (c) 2019 Konrad Mattheis und Martin Berthold
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+#endregion
+
+namespace Ser.Engine.Rest
 {
     #region Usings
-    using NLog;
-    using NLog.Config;
-    using SimpleHttp;
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Threading;
-    using System.Web;
-    using Newtonsoft.Json;
+    using System.Collections.Generic;
+    using Microsoft.AspNetCore;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
+    using NLog;
+    using NLog.Web;
     #endregion
 
-    class Program
+    /// <summary>
+    /// Main Program
+    /// </summary>
+    public class Program
     {
         #region Logger
         private static Logger logger = LogManager.GetCurrentClassLogger();
         #endregion
 
-        #region Properties && Variables
-        private static SerRestService Service = null;
-        #endregion
-
-        static void Main(string[] args)
+        #region Main Method
+        /// <summary>
+        /// Main Method
+        /// </summary>
+        /// <param name="args">Argumente</param>
+        public static void Main(string[] args)
         {
             try
             {
-                SetLoggerSettings("App.config");
-                logger.Info("Initialize Server...");
-                var config = new ServiceParameter(args);
-                Directory.CreateDirectory(config.TempDir);
-                logger.Debug($"Temp folder: \"{config.TempDir}\"");
-                Service = new SerRestService(config);
-                Route.Before = (rq, rp) => { logger.Info($"Requested: {rq.Url.PathAndQuery}"); return false; };
+                //Activate Nlog logger with configuration
+                var logger = NLogBuilder.ConfigureNLog("App.config").GetCurrentClassLogger();
 
-                #region File Opteration Routes
-                Route.Add("/api/v1/file", (rq, rp, rargs) =>
-                {
-                    var sra = ServiceRequestArgs.FromFile(rargs, rq);
-                    var result = Service.PostUploadFile(sra);
-                    if (result == null)
-                        result = "ERROR";
-                    rp.AsText(JsonConvert.SerializeObject(result));
-                }, "POST");
+                //Build config for webserver
+                var config = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("hosting.json", optional: true)
+                .AddEnvironmentVariables()
+                .AddCommandLine(args)
+                .Build();
+                var contentRoot = config?.GetValue<string>("contentRoot") ?? "wwwroot";
+                if (!contentRoot.Contains(":") && !contentRoot.StartsWith("/") && !contentRoot.StartsWith("\\"))
+                    contentRoot = Path.Combine(AppContext.BaseDirectory, contentRoot);
+                Directory.CreateDirectory(contentRoot);
 
-                Route.Add("/api/v1/file/{id}", (rq, rp, rargs) =>
-                {
-                    var sra = ServiceRequestArgs.FromFile(rargs, rq);
-                    var result = Service.PostUploadFile(sra);
-                    if (result == null)
-                        result = "ERROR";
-                    rp.AsText(JsonConvert.SerializeObject(result));
-                }, "POST");
-
-                Route.Add("/api/v1/file/{id}", (rq, rp, rargs) =>
-                {
-                    var sra = ServiceRequestArgs.FromFile(rargs, rq);
-                    var data = Service.GetUploadFile(sra);
-                    if (data == null)
-                        rp.AsText(JsonConvert.SerializeObject("ERROR"));
-                    else
-                        rp.AsBytes(rq, data);
-                }, "GET");
-
-                Route.Add("/api/v1/file", (rq, rp, rargs) =>
-                {
-                    var result = Service.DeleteUpload();
-                    if (result == null)
-                        result = "ERROR";
-                    rp.AsText(JsonConvert.SerializeObject(result));
-                }, "DELETE");
-
-                Route.Add("/api/v1/file/{id}", (rq, rp, rargs) =>
-                {
-                    var sra = ServiceRequestArgs.FromFile(rargs);
-                    var result = Service.DeleteUpload(sra);
-                    if (result == null)
-                        result = "ERROR";
-                    rp.AsText(JsonConvert.SerializeObject(result));
-                }, "DELETE");
-                #endregion
-
-                #region Task Opteration Routes
-                Route.Add("/api/v1/task", (rq, rp, rargs) =>
-                {
-                    var sra = ServiceRequestArgs.FromTask(rargs, rq);
-                    var result = Service.CreateTask(sra);
-                    if (result == null)
-                        result = "ERROR";
-                    rp.AsText(JsonConvert.SerializeObject(result));
-                }, "POST");
-
-                Route.Add("/api/v1/task", (rq, rp, rargs) =>
-                {
-                    var result = Service.GetTasks();
-                    rp.AsText(JsonConvert.SerializeObject(result));
-                }, "GET");
-
-                Route.Add("/api/v1/task/{id}", (rq, rp, rargs) =>
-                {
-                    var sra = ServiceRequestArgs.FromTask(rargs);
-                    var result = Service.GetTasks(sra);
-                    rp.AsText(JsonConvert.SerializeObject(result));
-                }, "GET");
-
-                Route.Add("/api/v1/task/{id}", (rq, rp, rargs) =>
-                {
-                    var sra = ServiceRequestArgs.FromTask(rargs);
-                    var result = Service.StopTasks(sra);
-                    if (result == null)
-                        result = "ERROR";
-                    rp.AsText(JsonConvert.SerializeObject(result));
-                }, "DELETE");
-
-                Route.Add("/api/v1/task", (rq, rp, rargs) =>
-                {
-                    rp.AsText(JsonConvert.SerializeObject(Service.StopTasks()));
-                }, "DELETE");
-                #endregion
-
-                logger.Info($"Server in running on port \"{config.Port}\"...");
-                var cts = new CancellationTokenSource();
-                var server = HttpServer.ListenAsync(config.Port, cts.Token, Route.OnHttpRequestAsync, config.UseHttps);
-                AppExit.WaitFor(cts, server);
+                //Start the web server
+                CreateWebHostBuilder(args)
+                    .UseKestrel()
+                    .UseContentRoot(contentRoot)
+                    .UseConfiguration(config)
+                    .ConfigureLogging(logging =>
+                    {
+                        logging.ClearProviders();
+                        logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                    })
+                    .UseNLog()
+                    .Build()
+                    .Run();
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "The web server has an fatal error.");
+                logger.Error(ex, "Webserver has fatal error.");
             }
-        }
-
-        #region nlog helper for netcore
-        private static void SetLoggerSettings(string configName)
-        {
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configName);
-            if (!File.Exists(path))
+            finally
             {
-                var root = new FileInfo(path).Directory?.Parent?.Parent?.Parent;
-                var files = root.GetFiles("App.config", SearchOption.AllDirectories).ToList();
-                path = files.FirstOrDefault()?.FullName;
+                LogManager.Shutdown();
             }
-
-            LogManager.Configuration = new XmlLoggingConfiguration(path, false);
         }
+
+        /// <summary>
+        /// Start WebServer
+        /// </summary>
+        /// <param name="args">Argumente</param>
+        /// <returns></returns>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
         #endregion
     }
 }

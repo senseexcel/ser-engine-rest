@@ -1,38 +1,20 @@
-﻿# Build docker image
-FROM debian:stretch-slim
-
-WORKDIR /usr/src/app
-COPY . .
+FROM microsoft/dotnet:2.1-aspnetcore-runtime AS base
+WORKDIR /app
 EXPOSE 80
+EXPOSE 443
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        ca-certificates \
-        libc6 \
-        libgcc1 \
-        libgssapi-krb5-2 \
-        libicu57 \
-        liblttng-ust0 \
-        libssl1.0.2 \
-        libstdc++6 \
-        zlib1g \
-		libgdiplus \
-		libc6-dev \
-		curl \
-    && rm -rf /var/lib/apt/lists/*
+FROM microsoft/dotnet:2.1-sdk AS build
+WORKDIR /src
+COPY ["ser-engine-rest.csproj", "ser-engine-rest/"]
+RUN dotnet restore "ser-engine-rest.csproj"
+COPY . .
+WORKDIR "."
+RUN dotnet build "ser-engine-rest.csproj" -c Release -o /app
 
-RUN ln -s /usr/lib/libgdiplus.so /usr/lib/gdiplus.dll
+FROM build AS publish
+RUN dotnet publish "ser-engine-rest.csproj" -c Release -o /app
 
-ENV DOTNET_VERSION 2.1.0
-
-RUN curl -SL --output dotnet.tar.gz https://dotnetcli.blob.core.windows.net/dotnet/Runtime/$DOTNET_VERSION/dotnet-runtime-$DOTNET_VERSION-linux-x64.tar.gz \
-    && dotnet_sha512='f93edfc068290347df57fd7b0221d0d9f9c1717257ed3b3a7b4cc6cc3d779d904194854e13eb924c30eaf7a8cc0bd38263c09178bc4d3e16281f552a45511234' \
-    && echo "$dotnet_sha512 dotnet.tar.gz" | sha512sum -c - \
-    && mkdir -p /usr/share/dotnet \
-    && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
-    && rm dotnet.tar.gz \
-    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-
-ENV DOTNET_RUNNING_IN_CONTAINER=true
-
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "ser-engine-rest.dll"]

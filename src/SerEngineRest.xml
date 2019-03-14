@@ -1,0 +1,422 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SerEngineRest</name>
+    </assembly>
+    <members>
+        <member name="T:Ser.Engine.Rest.DataInputFormatter">
+            <summary>
+            Read and convert file data to a byte array
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.DataInputFormatter.CanRead(Microsoft.AspNetCore.Mvc.Formatters.InputFormatterContext)">
+            <summary>
+            Read stream and analysis mime type
+            </summary>
+            <param name="context">context</param>
+            <returns></returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.DataInputFormatter.ReadAsync(Microsoft.AspNetCore.Mvc.Formatters.InputFormatterContext)">
+            <summary>
+            Read data and convert to byte array
+            </summary>
+            <param name="context">context</param>
+            <returns></returns>
+        </member>
+        <member name="T:Ser.Engine.Rest.Attributes.ValidateModelStateAttribute">
+            <summary>
+            Model state validation attribute
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Attributes.ValidateModelStateAttribute.OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext)">
+            <summary>
+            Called before the action method is invoked
+            </summary>
+            <param name="context">Validation Context</param>
+        </member>
+        <member name="T:Ser.Engine.Rest.Controllers.FileOperationsApiController">
+            <summary>
+            Controller for file operations
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.FileOperationsApiController.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Hosting.IHostedService)">
+            <summary>
+            Construtor with configuration
+            </summary>
+            <param name="configuration">Configuration</param>
+            <param name="service">Reporting service</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.FileOperationsApiController.UploadWithId(System.IO.Stream,System.Guid,System.String,System.Boolean)">
+            <summary>
+            Upload a file to the service with a fixed file id.
+            </summary>
+            <param name="data">The file data to upload.</param>
+            <param name="serFilename">The Name of the file</param>
+            <param name="fileId">The file id for the created folder.</param>
+            <param name="serUnzip">Unpacking zip files after upload.</param>
+            <response code="200">Returns the transfered file id.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.FileOperationsApiController.Upload(System.IO.Stream,System.String,System.Boolean)">
+            <summary>
+            Upload a file to the service.
+            </summary>
+            <param name="data">The file data to upload.</param>
+            <param name="serFilename">The Name of the file</param>
+            <param name="serUnzip">Unpacking zip files after upload.</param>
+            <response code="200">Returns a new generated file id.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.FileOperationsApiController.DownloadFiles(System.Guid,System.String)">
+            <summary>
+            Get the files from the service.
+            </summary>
+            <param name="fileId">The file id that has been created.</param>
+            <param name="serFilename">Special file to be returned.</param>
+            <response code="200">Returns the file from id.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.FileOperationsApiController.DeleteFiles(System.Guid)">
+            <summary>
+            Delete a file in the service.
+            </summary>
+            <param name="fileId">Special folder to be deleted.</param>
+            <response code="200">Returns the operation status.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.FileOperationsApiController.DeleteAllFiles">
+            <summary>
+            Delete files in the service.
+            </summary>
+            <response code="200">Returns the operation status.</response>
+        </member>
+        <member name="T:Ser.Engine.Rest.Controllers.TaskOperationsApiController">
+            <summary>
+            Controller for task operations
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.TaskOperationsApiController.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Hosting.IHostedService)">
+            <summary>
+            Controller for task operations
+            </summary>
+            <param name="configuration">Configuration</param>
+            <param name="service">Reporting service</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.TaskOperationsApiController.CreateTaskWithId(System.String,System.Guid)">
+            <summary>
+            Create a reporting task.
+            </summary>
+            <param name="jsonJob">The JSON job file for the engine.</param>
+            <param name="taskId">The Id for the task.</param>
+            <response code="200">Returns a new generated task id.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.TaskOperationsApiController.CreateTask(System.String)">
+            <summary>
+            Create a reporting task.
+            </summary>
+            <param name="jsonJob">The JSON job file for the engine.</param>
+            <response code="200">Returns a new generated task id.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.TaskOperationsApiController.StopAllTasks">
+            <summary>
+            Stop all tasks.
+            </summary>
+            <response code="200">Get a status.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.TaskOperationsApiController.StopTasks(System.Guid)">
+            <summary>
+            Stop the current task.
+            </summary>
+            <param name="taskId">The task ID to be deleted.</param>
+            <response code="200">Get a status.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.TaskOperationsApiController.Tasks(System.String)">
+            <summary>
+            Gets the results from all Tasks.
+            </summary>
+            <param name="serTaskStatus">Get all tasks with this status.</param>
+            <response code="200">Gets the results from all Tasks.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.TaskOperationsApiController.TaskWithId(System.Guid)">
+            <summary>
+            Gets the result from the current Task.
+            </summary>
+            <param name="taskId">The task id from which I want to get the result.</param>
+            <response code="200">Gets the result from the current Task.</response>
+        </member>
+        <member name="M:Ser.Engine.Rest.Controllers.TaskOperationsApiController.HealthStatus">
+            <summary>
+            Check if the task is still alive.
+            </summary>
+            <response code="200">Gets the health status from the task.</response>
+        </member>
+        <member name="T:Ser.Engine.Rest.SerController">
+            <summary>
+            Main service class
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.SerController.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Hosting.IHostedService)">
+            <summary>
+            Main Controller
+            </summary>
+            <param name="configuration">Confi</param>
+            <param name="service">Reporting service</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.SerController.PostUploadFile(System.String,System.IO.Stream,System.Boolean,System.Nullable{System.Guid})">
+            <summary>
+            Upload file
+            </summary>
+            <param name="filename">Name of the file</param>
+            <param name="data">File as stream</param>
+            <param name="fileId">Id of the folder</param>
+            <param name="unzip">unzip zip files</param>
+            <returns></returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.SerController.GetUploadFile(System.Nullable{System.Guid},System.String)">
+            <summary>
+            Get the file from the upload folder
+            </summary>
+            <param name="fileId">Id of the folder</param>
+            <param name="filename">Name of the file</param>
+            <returns></returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.SerController.DeleteUpload(System.Nullable{System.Guid})">
+            <summary>
+            Delete upload files
+            </summary>
+            <param name="fileId">Id of the folder</param>
+            <returns>Return the status</returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.SerController.PostStartTask(System.String,System.Nullable{System.Guid})">
+            <summary>
+            Create a new task
+            </summary>
+            <param name="jsonJobContent">Json-Job file of SER.</param>
+            <param name="taskId">The id for the task process.</param>
+            <returns>Return a task id</returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.SerController.GetTasks(System.Nullable{System.Guid},System.Nullable{Ser.Api.TaskStatusInfo})">
+            <summary>
+            Get the status of a Task.
+            </summary>
+            <param name="taskId">Id of the task</param>
+            <param name="taskStatus">Get tasks only with this status.</param>
+            <returns>Return the result json of running task.</returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.SerController.DeleteTasks(System.Nullable{System.Guid})">
+            <summary>
+            Stop the task
+            </summary>
+            <param name="taskId">Id of the task</param>
+            <returns>Return a status</returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.SerController.GetHealthStatus">
+            <summary>
+            Get the health status form service.
+            </summary>
+            <returns>result</returns>
+        </member>
+        <member name="T:Ser.Engine.Rest.OperationResult">
+            <summary>
+            Result object of the rest service operation
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.OperationResult.Success">
+            <summary>
+            Result of operation
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.OperationResult.Error">
+            <summary>
+            Error message
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.OperationResult.OperationId">
+            <summary>
+            Id for the operation
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.OperationResult.Health">
+            <summary>
+            Status of service
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.OperationResult.WorkingCount">
+            <summary>
+            Count of job are running
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.OperationResult.Results">
+            <summary>
+            List an reports
+            </summary>
+        </member>
+        <member name="T:Ser.Engine.Rest.Filters.OpenApiDocumentFilter">
+            <summary>
+            Inistalizes the openapi document
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.Filters.OpenApiDocumentFilter.Servers">
+            <summary>
+            Urls that are added to the server property.
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.Filters.OpenApiDocumentFilter.WriteOpenApiDocs">
+            <summary>
+            Write the OpenAPI docs in Json and Yaml
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Filters.OpenApiDocumentFilter.#ctor(System.Collections.Generic.List{Microsoft.OpenApi.Models.OpenApiServer},System.Boolean)">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Filters.OpenApiDocumentFilter.Apply(Microsoft.OpenApi.Models.OpenApiDocument,Swashbuckle.AspNetCore.SwaggerGen.DocumentFilterContext)">
+            <summary>
+            Modify Openapi document
+            </summary>
+        </member>
+        <member name="T:Ser.Engine.Rest.Filters.OpenApiOperationFilter">
+            <summary>
+            Path Parameter Validation Rules Filter
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Filters.OpenApiOperationFilter.Apply(Microsoft.OpenApi.Models.OpenApiOperation,Swashbuckle.AspNetCore.SwaggerGen.OperationFilterContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="operation">Operation</param>
+            <param name="context">OperationFilterContext</param>
+        </member>
+        <member name="T:Ser.Engine.Rest.Program">
+            <summary>
+            Main Program
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Program.Main(System.String[])">
+            <summary>
+            Main Method
+            </summary>
+            <param name="args">Argumente</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.Program.CreateWebHostBuilder(System.String[])">
+            <summary>
+            Start WebServer
+            </summary>
+            <param name="args">Argumente</param>
+            <returns></returns>
+        </member>
+        <member name="T:Ser.Engine.Rest.Services.BackgroundService">
+            <summary>
+            Base class for implementing a long running <see cref="T:Microsoft.Extensions.Hosting.IHostedService"/>
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Services.BackgroundService.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Start service
+            </summary>
+            <param name="cancellationToken">use cancel token</param>
+            <returns> A Task</returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.Services.BackgroundService.StopAsync(System.Threading.CancellationToken)">
+            <summary>
+            Stop service
+            </summary>
+            <param name="cancellationToken">use cancel token</param>
+            <returns>A task</returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.Services.BackgroundService.Dispose">
+            <summary>
+            Make free and stop all tasks.
+            </summary>
+        </member>
+        <member name="T:Ser.Engine.Rest.Services.ReportingService">
+            <summary>
+            Reporting service
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.Services.ReportingService.Options">
+            <summary>
+            Reporting Options
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.Services.ReportingService.WorkingCount">
+            <summary>
+            Current working jobs
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Services.ReportingService.#ctor(Ser.Engine.Rest.Services.ReportingServiceOptions)">
+            <summary>
+            Initialize reporting service
+            </summary>
+            <param name="options">options</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.Services.ReportingService.WriteUploadFile(System.Guid,System.Byte[],System.String,System.Boolean)">
+            <summary>
+            Write uploaded file to folder
+            </summary>
+            <param name="fileId">Name of the file</param>
+            <param name="fileData">File as stream</param>
+            <param name="filename">Id of the folder</param>
+            <param name="unzip">unzip zip files</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.Services.ReportingService.DeleteFile(System.Nullable{System.Guid})">
+            <summary>
+            Delete upload files
+            </summary>
+            <param name="fileId">Id of the folder</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.Services.ReportingService.RunNewTask(System.Guid,System.String)">
+            <summary>
+            Start a new reporting task.
+            </summary>
+            <param name="taskId">Id of the task</param>
+            <param name="jsonContent">json job content</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.Services.ReportingService.GetTasks(System.Nullable{System.Guid},System.Nullable{Ser.Api.TaskStatusInfo})">
+            <summary>
+            Get the engine results
+            </summary>
+            <param name="taskId">Id of the task</param>
+            <param name="taskStatus">Select a special status</param>
+            <returns></returns>
+        </member>
+        <member name="M:Ser.Engine.Rest.Services.ReportingService.StopTasks(System.Nullable{System.Guid})">
+            <summary>
+            Stop the task
+            </summary>
+            <param name="taskId">Id of the task</param>
+            <returns>Get status</returns>
+        </member>
+        <member name="T:Ser.Engine.Rest.Services.ReportingServiceOptions">
+            <summary>
+            Reporting options
+            </summary>
+        </member>
+        <member name="P:Ser.Engine.Rest.Services.ReportingServiceOptions.TempFolder">
+            <summary>
+            temp folder for reporting
+            </summary>
+        </member>
+        <member name="T:Ser.Engine.Rest.Startup">
+            <summary>
+            Startup class of the service
+            </summary>
+        </member>
+        <member name="M:Ser.Engine.Rest.Startup.#ctor(Microsoft.Extensions.Hosting.IHostingEnvironment,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Startup Constructor
+            </summary>
+            <param name="env">Hosting Varibales</param>
+            <param name="configuration">App Configuration</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            This method gets called by the runtime. Use this method to add services to the container.
+            </summary>
+            <param name="services">Service Parameter</param>
+        </member>
+        <member name="M:Ser.Engine.Rest.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            </summary>
+            <param name="app">Web application builder</param>
+        </member>
+    </members>
+</doc>

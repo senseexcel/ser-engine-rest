@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28010.2019
+VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ser-service-rest", "ser-engine-rest.csproj", "{AC7DFF83-78A0-44FD-9F20-17371BE63AC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ser-engine-rest", "ser-engine-rest.csproj", "{4181952F-3243-4DCE-9556-0E39A28ECCC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AC7DFF83-78A0-44FD-9F20-17371BE63AC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC7DFF83-78A0-44FD-9F20-17371BE63AC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC7DFF83-78A0-44FD-9F20-17371BE63AC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC7DFF83-78A0-44FD-9F20-17371BE63AC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4181952F-3243-4DCE-9556-0E39A28ECCC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4181952F-3243-4DCE-9556-0E39A28ECCC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4181952F-3243-4DCE-9556-0E39A28ECCC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4181952F-3243-4DCE-9556-0E39A28ECCC8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7A8A7BFB-210B-4CAA-ABC0-78635D4B0EC9}
+		SolutionGuid = {D2029B9A-F869-4197-83BD-7DBAE89F2833}
 	EndGlobalSection
 EndGlobal
