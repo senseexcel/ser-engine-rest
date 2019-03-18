@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>Ser.Engine.Rest</RootNamespace>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -24,18 +24,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspose.Cells" Version="19.2.0" />
-    <PackageReference Include="Aspose.PDF" Version="19.2.0" />
-    <PackageReference Include="enigma.net" Version="0.14.0-alpha0015" />
-    <PackageReference Include="FluentCommandLineParser-netstandard" Version="1.4.3.13" />
     <PackageReference Include="Hjson" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.8" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="NLog" Version="4.5.11" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.4.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.0" />
-    <PackageReference Include="Q2gHelperQrs" Version="1.3.0" />
-    <PackageReference Include="qlik-engineapi" Version="0.3.0-alpha0015" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-beta" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0-beta" />
@@ -54,26 +48,36 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PublishToNugetWithAPIKey" AfterTargets="GenerateNuspec">
+  <Choose>
+    <When Condition="'$(Configuration)' == 'Release'">
+      <PropertyGroup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      </PropertyGroup>
+      <ItemGroup>
+        <PackageReference Include="SerApi" Version="3.4.2" />
+        <PackageReference Include="Ser.Engine" Version="3.4.0" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+      </PropertyGroup>
+      <ItemGroup>
+        <Reference Include="SerApi">
+          <HintPath>..\..\ser-api-nuget\src\bin\Debug\$(TargetFramework)\SerApi.dll</HintPath>
+        </Reference>
+        <Reference Include="Ser.Engine">
+          <HintPath>..\..\ser-engine\src\bin\Debug\$(TargetFramework)\publish\ser-engine.dll</HintPath>
+        </Reference>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <Target Name="PublishToNugetWithAPIKey" AfterTargets="GenerateNuspec" Condition="Exists('$(SolutionDir)\..\..\nugetapikey.txt')">
     <ReadLinesFromFile File="$(SolutionDir)\..\..\nugetapikey.txt">
       <Output TaskParameter="Lines" PropertyName="NugetAPIKey" />
     </ReadLinesFromFile>
     <Exec WorkingDirectory="$(BaseDir)" Command="dotnet nuget push $(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).nupkg -k $(NugetAPIKey) -s https://api.nuget.org/v3/index.json" />
   </Target>
-
-  <ItemGroup>
-    <Reference Include="Q2gHelperQlik">
-      <HintPath>Lib\Q2gHelperQlik.dll</HintPath>
-    </Reference>
-    <Reference Include="SE-L">
-      <HintPath>Lib\SE-L.dll</HintPath>
-    </Reference>
-    <Reference Include="ser-engine">
-      <HintPath>..\..\ser-engine\src\bin\Debug\netcoreapp2.1\ser-engine.dll</HintPath>
-    </Reference>
-    <Reference Include="SerApi">
-      <HintPath>Lib\SerApi.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 
 </Project>
