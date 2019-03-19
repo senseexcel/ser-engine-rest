@@ -45,11 +45,11 @@ namespace Ser.Engine.Rest
 
                 //Build config for webserver
                 var config = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("hosting.json", optional: true)
-                .AddEnvironmentVariables()
-                .AddCommandLine(args)
-                .Build();
+                    .SetBasePath(AppContext.BaseDirectory)
+                    .AddJsonFile("hosting.json", optional: true)
+                    .AddEnvironmentVariables()
+                    .AddCommandLine(args)
+                    .Build();
                 var contentRoot = config?.GetValue<string>("contentRoot") ?? "wwwroot";
                 if (!contentRoot.Contains(":") && !contentRoot.StartsWith("/") && !contentRoot.StartsWith("\\"))
                     contentRoot = Path.Combine(AppContext.BaseDirectory, contentRoot);
