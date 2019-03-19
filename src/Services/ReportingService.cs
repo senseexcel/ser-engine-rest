@@ -133,33 +133,25 @@ namespace Ser.Engine.Rest.Services
 
         private void Delete(Guid? id = null)
         {
+            var folders = new List<string>();
             if (id.HasValue)
-            {
-                var deleteFolder = Path.Combine(Options.TempFolder, id.ToString());
-                if (Directory.Exists(deleteFolder))
-                {
-                    logger.Debug($"Delete folder {deleteFolder}");
-                    Directory.Delete(deleteFolder, true);
-                }
-                else
-                    logger.Debug($"Delete folder {deleteFolder} not exists.");
-            }
+                folders.Add(Path.Combine(Options.TempFolder, id.ToString()));
             else
+                folders.AddRange(Directory.GetDirectories(Options.TempFolder, "*.*", SearchOption.TopDirectoryOnly));
+
+            foreach (var folder in folders)
             {
-                var folders = Directory.GetDirectories(Options.TempFolder, "*.*", SearchOption.TopDirectoryOnly);
-                foreach (var folder in folders)
+                try
                 {
-                    try
-                    {
-                        logger.Debug($"Delete folder {folder}");
-                        Directory.Delete(folder, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex, $"The folder {folder} could not delete.");
-                    }
+                    logger.Debug($"Delete folder {folder}");
+                    Directory.Delete(folder, true);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, $"The folder {folder} could not delete.");
                 }
             }
+
             logger.Debug("The deletion was completed.");
         }
 
@@ -250,25 +242,26 @@ namespace Ser.Engine.Rest.Services
 
             try
             {
+                var folders = new List<string>();
                 if (taskId.HasValue)
                 {
-                    var taskFolder = Path.Combine(Options.TempFolder, taskId.Value.ToString());
-                    var para = GetJobParameter(taskFolder);
-                    results.AddRange(ReportingTask.GetAllResultsFromJob(para));
                     logger.Debug($"Get the results of the Task {taskId.Value}.");
+                    folders.Add(Path.Combine(Options.TempFolder, taskId.Value.ToString()));
                 }
                 else
                 {
                     logger.Debug($"Get the result of all tasks.");
-                    var folders = Directory.GetDirectories(Options.TempFolder, "*.*", SearchOption.TopDirectoryOnly);
-                    foreach (var folder in folders)
-                    {
-                        var para = GetJobParameter(folder);
-                        if (taskStatus.HasValue)
-                            results.AddRange(ReportingTask.GetAllResultsFromJob(para).Where(t => t.Status == taskStatus.Value));
-                        else
-                            results.AddRange(ReportingTask.GetAllResultsFromJob(para));
-                    }
+                    folders.AddRange(Directory.GetDirectories(Options.TempFolder, "*.*", SearchOption.TopDirectoryOnly));
+                }
+
+                foreach (var folder in folders)
+                {
+                    logger.Trace($"Job result \"{folder}\".");
+                    var para = GetJobParameter(folder);
+                    if (taskStatus.HasValue)
+                        results.AddRange(ReportingTask.GetAllResultsFromJob(para).Where(t => t.Status == taskStatus.Value));
+                    else
+                        results.AddRange(ReportingTask.GetAllResultsFromJob(para));
                 }
                 return results;
             }
