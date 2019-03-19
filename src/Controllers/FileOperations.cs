@@ -76,9 +76,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                var msg = $"The Method {nameof(UploadWithId)} failed.";
-                logger.Error(ex, msg);
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = msg });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(UploadWithId)} failed.");
             }
         }
 
@@ -107,9 +105,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                var msg = $"The Method {nameof(Upload)} failed.";
-                logger.Error(ex, msg);
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = msg });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(Upload)} failed.");
             }
         }
 
@@ -163,9 +159,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                var msg = $"The Method {nameof(DeleteFiles)} failed.";
-                logger.Error(ex, msg);
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = msg });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(DeleteFiles)} failed.");
             }
         }
 
@@ -190,9 +184,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                var msg = $"The Method {nameof(DeleteAllFiles)} failed.";
-                logger.Error(ex, msg);
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = msg });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(DeleteAllFiles)} failed.");
             }
         }
         #endregion

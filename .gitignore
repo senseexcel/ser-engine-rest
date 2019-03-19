@@ -9,6 +9,9 @@
 *.userosscache
 *.sln.docstates
 
+# Documentation
+SerEngineRest.xml
+
 # Aspose License
 Aspose.Total.lic
 

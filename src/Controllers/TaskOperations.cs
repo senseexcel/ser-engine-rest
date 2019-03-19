@@ -76,9 +76,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                var msg = $"The Method {nameof(CreateTaskWithId)} failed.";
-                logger.Error(ex, msg);
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = msg });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(CreateTaskWithId)} failed.");
             }
         }
 
@@ -105,9 +103,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                var msg = $"The Method {nameof(CreateTask)} failed.";
-                logger.Error(ex, msg);
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = msg });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(CreateTask)} failed.");
             }
         }
 
@@ -132,9 +128,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                var msg = $"The Method {nameof(StopAllTasks)} failed.";
-                logger.Error(ex, msg);
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = msg });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(StopAllTasks)} failed.");
             }
         }
 
@@ -160,9 +154,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                var msg = $"The Method {nameof(StopTasks)} failed.";
-                logger.Error(ex, msg);
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = msg });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(StopTasks)} failed.");
             }
         }
 
@@ -191,8 +183,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"The Method {nameof(Tasks)} failed.");
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Results = new List<JobResult>() });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(Tasks)} failed.", new OperationResult() { Success = false, Results = new List<JobResult>() });
             }
         }
 
@@ -218,8 +209,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"The Method {nameof(TaskWithId)} failed.");
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Results = new List<JobResult>() });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(TaskWithId)} failed.", new OperationResult() { Success = false, Results = new List<JobResult>() });
             }
         }
 
@@ -244,9 +234,7 @@ namespace Ser.Engine.Rest.Controllers
             }
             catch (Exception ex)
             {
-                var msg = $"The Method {nameof(HealthStatus)} failed.";
-                logger.Error(ex, msg);
-                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = msg });
+                return GetBadRequestAndLog(ex, $"The Method {nameof(HealthStatus)} failed.");
             }
         }
         #endregion

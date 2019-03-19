@@ -88,6 +88,24 @@ namespace Ser.Engine.Rest
         }
         #endregion
 
+        #region Genral Methods
+        /// <summary>
+        /// Log the excpetion with Nlog and create a response
+        /// </summary>
+        /// <param name="exception">Exception</param>
+        /// <param name="message">Message</param>
+        /// <param name="result">Result</param>
+        /// <returns></returns>
+        protected BadRequestObjectResult GetBadRequestAndLog(Exception exception, string message, OperationResult result = null)
+        {
+            logger.Error(exception, message);
+            if (result == null)
+                return new BadRequestObjectResult(new OperationResult() { Success = false, Error = message });
+            else
+                return new BadRequestObjectResult(result);
+        }
+        #endregion
+
         #region File Methods
         /// <summary>
         /// Upload file

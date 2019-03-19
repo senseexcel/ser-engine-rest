@@ -59,13 +59,13 @@ namespace Ser.Engine.Rest.Attributes
         private object ParseDataType(string value)
         {
             if (Boolean.TryParse(value, out var boolResult))
-                return Convert.ChangeType(value, typeof(bool));
+                return boolResult;
             else if (Int32.TryParse(value, out var int32Result))
-                return Convert.ChangeType(value, typeof(int));
+                return int32Result;
             else if (Int64.TryParse(value, out var int64Result))
-                return Convert.ChangeType(value, typeof(Int64));
+                return int64Result;
             else if (Double.TryParse(value, out var doubleResult))
-                return Convert.ChangeType(value, typeof(double));
+                return doubleResult;
             else
                 return value;
         }
