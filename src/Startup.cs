@@ -85,6 +85,12 @@ namespace Ser.Engine.Rest
                         opts.SerializerSettings.Converters.Add(new StringEnumConverter());
                     });
 
+                var urls = Configuration.GetValue<string>("URLS").Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                var servers = new List<OpenApiServer>();
+                foreach (var url in urls)
+                    servers.Add(new OpenApiServer() { Url = $"{url.TrimEnd('/')}/api/v1" });
+                var writeDocs = Configuration?.GetValue<bool>("writedocumentation", true) ?? true;
+
                 services
                     .AddSwaggerGen(options =>
                     {
@@ -106,11 +112,6 @@ namespace Ser.Engine.Rest
                         options.DescribeAllEnumsAsStrings();
                         options.EnableAnnotations();
                         options.IncludeXmlComments($"{Path.Combine(AppContext.BaseDirectory, HostingEnv.ApplicationName)}.xml");
-                        var urls = Configuration.GetValue<string>("URLS").Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                        var servers = new List<OpenApiServer>();
-                        foreach (var url in urls)
-                            servers.Add(new OpenApiServer() { Url = $"{url.TrimEnd('/')}/api/v1" });
-                        var writeDocs = Configuration?.GetValue<bool>("writedocumentation", true) ?? true;
                         options.DocumentFilter<OpenApiDocumentFilter>(servers, writeDocs);
                         options.OperationFilter<OpenApiOperationFilter>();
                     });
