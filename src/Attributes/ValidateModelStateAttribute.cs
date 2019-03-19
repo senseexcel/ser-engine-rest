@@ -12,6 +12,7 @@ namespace Ser.Engine.Rest.Attributes
     #region Usings
     using System;
     using System.ComponentModel.DataAnnotations;
+    using System.Globalization;
     using System.IO;
     using System.Reflection;
     using Microsoft.AspNetCore.Mvc;
@@ -64,7 +65,7 @@ namespace Ser.Engine.Rest.Attributes
                 return int32Result;
             else if (Int64.TryParse(value, out var int64Result))
                 return int64Result;
-            else if (Double.TryParse(value, out var doubleResult))
+            else if (Double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleResult))
                 return doubleResult;
             else
                 return value;
