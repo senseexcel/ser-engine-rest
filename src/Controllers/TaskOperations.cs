@@ -71,8 +71,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace($"Start create task - Json: {jsonJob}");
                 var result = PostStartTask(jsonJob, taskId);
-                logger.Trace($"{nameof(CreateTaskWithId)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(CreateTaskWithId), result);
             }
             catch (Exception ex)
             {
@@ -98,8 +97,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace($"Start create task - Json: {jsonJob}");
                 var result = PostStartTask(jsonJob);
-                logger.Trace($"{nameof(CreateTask)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(CreateTask), result);
             }
             catch (Exception ex)
             {
@@ -123,8 +121,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace($"Start stop all task");
                 var result = DeleteTasks();
-                logger.Trace($"{nameof(StopAllTasks)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(StopAllTasks), result);
             }
             catch (Exception ex)
             {
@@ -149,8 +146,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace($"Start delete task - Id: {taskId}");
                 var result = DeleteTasks(taskId);
-                logger.Trace($"{nameof(StopTasks)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(StopTasks), result);
             }
             catch (Exception ex)
             {
@@ -178,8 +174,7 @@ namespace Ser.Engine.Rest.Controllers
                 if (!String.IsNullOrEmpty(serTaskStatus))
                     taskStatus = (TaskStatusInfo)Enum.Parse(typeof(TaskStatusInfo), serTaskStatus, true);
                 var result = GetTasks(null, taskStatus);
-                logger.Trace($"{nameof(Tasks)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(Tasks), result);
             }
             catch (Exception ex)
             {
@@ -204,8 +199,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace($"Start get task - Id: {taskId}");
                 var result = GetTasks(taskId);
-                logger.Trace($"{nameof(TaskWithId)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(TaskWithId), result);
             }
             catch (Exception ex)
             {
@@ -229,8 +223,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace($"Start health status");
                 var result = GetHealthStatus();
-                logger.Trace($"{nameof(HealthStatus)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(HealthStatus), result);
             }
             catch (Exception ex)
             {

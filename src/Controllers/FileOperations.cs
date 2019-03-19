@@ -71,8 +71,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace($"Start upload file - Id: {fileId}");
                 var result = PostUploadFile(serFilename, data, serUnzip, fileId);
-                logger.Trace($"{nameof(UploadWithId)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(UploadWithId), result);
             }
             catch (Exception ex)
             {
@@ -100,8 +99,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace("Start upload file");
                 var result = PostUploadFile(serFilename, data, serUnzip);
-                logger.Trace($"{nameof(Upload)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(Upload), result);
             }
             catch (Exception ex)
             {
@@ -154,8 +152,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace($"Start delete file content - Id: {fileId}");
                 var result = DeleteUpload(fileId);
-                logger.Trace($"{nameof(DeleteFiles)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(DeleteFiles), result);
             }
             catch (Exception ex)
             {
@@ -179,8 +176,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Trace($"Start delete file content");
                 var result = DeleteUpload();
-                logger.Trace($"{nameof(DeleteAllFiles)} - Response: {JsonConvert.SerializeObject(result)}");
-                return new ObjectResult(result);
+                return GetRequestAndLog(nameof(DeleteAllFiles), result);
             }
             catch (Exception ex)
             {

@@ -64,7 +64,7 @@ namespace Ser.Engine.Rest.Filters
                 {
                     openApiDoc.Servers.Add(server);
                     var serverUri = new Uri(server.Url);
-                    var basePath = serverUri?.PathAndQuery?.Split('?')?.FirstOrDefault() ?? null;
+                    var basePath = serverUri?.AbsolutePath ?? null;
                     if (basePath == null)
                         continue;
                     var pathsToModify = openApiDoc.Paths.Where(p => p.Key.StartsWith(basePath)).ToList();

@@ -95,7 +95,7 @@ namespace Ser.Engine.Rest
         /// <param name="exception">Exception</param>
         /// <param name="message">Message</param>
         /// <param name="result">Result</param>
-        /// <returns></returns>
+        /// <returns>Bad Request</returns>
         protected BadRequestObjectResult GetBadRequestAndLog(Exception exception, string message, OperationResult result = null)
         {
             logger.Error(exception, message);
@@ -103,6 +103,18 @@ namespace Ser.Engine.Rest
                 return new BadRequestObjectResult(new OperationResult() { Success = false, Error = message });
             else
                 return new BadRequestObjectResult(result);
+        }
+
+        /// <summary>
+        /// Log request with Nlog and create a response
+        /// </summary>
+        /// <param name="name">Method name</param>
+        /// <param name="result">Result</param>
+        /// <returns>Result Object</returns>
+        protected ObjectResult GetRequestAndLog(string name, OperationResult result)
+        {
+            logger.Trace($"{name} - Response: {JsonConvert.SerializeObject(result)}");
+            return new ObjectResult(result);
         }
         #endregion
 
