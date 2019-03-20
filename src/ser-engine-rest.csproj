@@ -3,21 +3,19 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Authors>Konrad Mattheis und Martin Berthold</Authors>
+    <Company>senseexcel</Company>
+    <Copyright>Copyright (c) 2019</Copyright>
     <RootNamespace>Ser.Engine.Rest</RootNamespace>
-    <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+    <Version>$(GitVersion_NuGetVersion)</Version>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <Authors>Konrad Mattheis und Martin Berthold</Authors>
-    <Copyright>Copyright (c) 2019</Copyright>
-    <Company>senseexcel</Company>
-    <Version>$(GitVersion_NuGetVersion)</Version>
     <PackageId>Ser.Engine.Rest</PackageId>
-    <Product>Ser.Engine.Rest</Product>
     <ApplicationIcon />
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DocumentationFile>SerEngineRest.xml</DocumentationFile>
-    <AssemblyName>SerEngineRest</AssemblyName>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
