@@ -27,6 +27,8 @@ namespace Ser.Engine.Rest
     using Microsoft.Extensions.Hosting;
     using Ser.Engine.Rest.Services;
     using Microsoft.Extensions.Options;
+    using Microsoft.AspNetCore.Rewrite;
+    using System.Net;
     #endregion
 
     /// <summary>
@@ -130,14 +132,18 @@ namespace Ser.Engine.Rest
         {
             try
             {
+                var options = new RewriteOptions()
+                   .AddRedirect("(^$)|(index.html)", "swagger/index.html");
+
                 app.UseMvc()
-                .UseDefaultFiles()
-                .UseStaticFiles()
-                .UseSwagger()
-                .UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "SER ENGINE REST - Service Documentation");
-                });
+                   .UseDefaultFiles()
+                   .UseStaticFiles()
+                   .UseSwagger()
+                   .UseSwaggerUI(swagOptions =>
+                   {
+                       swagOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "SER ENGINE REST - Service Documentation");
+                   })
+                   .UseRewriter(options);
             }
             catch (Exception ex)
             {

@@ -58,6 +58,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
   <Choose>
     <When Condition="'$(Configuration)' == 'Release'">
       <PropertyGroup>
