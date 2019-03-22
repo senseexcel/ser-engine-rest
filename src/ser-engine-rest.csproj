@@ -14,12 +14,12 @@
     <PackageId>Ser.Engine.Rest</PackageId>
     <ApplicationIcon />
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DocumentationFile>SerEngineRest.xml</DocumentationFile>
+    <DocumentationFile>ser-engine-rest.xml</DocumentationFile>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="SerEngineRest.xml" />
+    <None Remove="ser-engine-rest.xml" />
   </ItemGroup>
 
   <ItemGroup>
