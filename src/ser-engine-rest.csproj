@@ -77,6 +77,7 @@
         </Reference>
         <Reference Include="Ser.Engine">
           <HintPath>..\..\ser-engine\src\bin\Debug\$(TargetFramework)\publish\ser-engine.dll</HintPath>
+          <EmbedInteropTypes></EmbedInteropTypes>
         </Reference>
       </ItemGroup>
     </Otherwise>
