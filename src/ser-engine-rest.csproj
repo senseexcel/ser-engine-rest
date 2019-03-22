@@ -16,6 +16,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DocumentationFile>ser-engine-rest.xml</DocumentationFile>
     <IsPackable>true</IsPackable>
+    <AssemblyName>SerEngineRest</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

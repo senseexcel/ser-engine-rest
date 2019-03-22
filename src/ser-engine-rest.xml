@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>ser-engine-rest</name>
+        <name>SerEngineRest</name>
     </assembly>
     <members>
         <member name="T:Ser.Engine.Rest.DataInputFormatter">
