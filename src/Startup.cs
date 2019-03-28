@@ -87,10 +87,16 @@ namespace Ser.Engine.Rest
                         opts.SerializerSettings.Converters.Add(new StringEnumConverter());
                     });
 
-                var urls = Configuration.GetValue<string>("URLS").Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                var urls = Configuration.GetValue<string>("URLS", String.Empty).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                if (urls.Length == 0)
+                    urls = Configuration.GetValue<string>("ASPNETCORE_URLS", String.Empty).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
                 var servers = new List<OpenApiServer>();
                 foreach (var url in urls)
+                {
+                    logger.Trace($"Configurated URL \"{url}\" found.");
                     servers.Add(new OpenApiServer() { Url = $"{url.TrimEnd('/')}/api/v1" });
+                }
+
                 var writeDocs = Configuration?.GetValue<bool>("writedocumentation", true) ?? true;
 
                 services
