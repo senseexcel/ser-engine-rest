@@ -14,13 +14,13 @@
     <PackageId>Ser.Engine.Rest</PackageId>
     <ApplicationIcon />
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DocumentationFile>ser-engine-rest.xml</DocumentationFile>
+    <DocumentationFile>SerEngineRest.xml</DocumentationFile>
     <IsPackable>true</IsPackable>
     <AssemblyName>SerEngineRest</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="ser-engine-rest.xml" />
+    <None Remove="SerEngineRest.xml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -83,6 +83,12 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
+
+  <ItemGroup>
+    <Reference Include="se.l">
+      <HintPath>..\..\se-l\src\bin\$(Configuration)\$(TargetFramework)\SE-L.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
   <Target Name="PublishToNugetWithAPIKey" AfterTargets="GenerateNuspec" Condition="Exists('$(SolutionDir)\..\..\nugetapikey.txt')">
     <ReadLinesFromFile File="$(SolutionDir)\..\..\nugetapikey.txt">

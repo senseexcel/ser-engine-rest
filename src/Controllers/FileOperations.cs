@@ -54,9 +54,9 @@ namespace Ser.Engine.Rest.Controllers
         /// Upload a file to the service with a fixed file id.
         /// </summary>
         /// <param name="data">The file data to upload.</param>
-        /// <param name="serFilename">The Name of the file</param>
+        /// <param name="filename">The Name of the file</param>
         /// <param name="fileId">The file id for the created folder.</param>
-        /// <param name="serUnzip">Unpacking zip files after upload.</param>
+        /// <param name="unzip">Unpacking zip files after upload.</param>
         /// <response code="200">Returns the transfered file id.</response>
         [HttpPost]
         [Route("/api/v1/file/{fileId}")]
@@ -65,12 +65,12 @@ namespace Ser.Engine.Rest.Controllers
         [Produces("application/json")]
         [SwaggerOperation("UploadWithId", "Upload a file to the service with a fixed file id.", Tags = new[] { "Upload File" })]
         [SwaggerResponse(statusCode: 200, type: typeof(OperationResult), description: "Returns the transfered file id.")]
-        public virtual IActionResult UploadWithId([FromBody][Required] Stream data, [FromRoute][Required] Guid fileId, [FromHeader][Required] string serFilename, [FromHeader] bool serUnzip = false)
+        public virtual IActionResult UploadWithId([FromBody][Required] Stream data, [FromRoute][Required] Guid fileId, [FromHeader][Required] string filename, [FromHeader] bool unzip = false)
         {
             try
             {
                 logger.Trace($"Start upload file - Id: {fileId}");
-                var result = PostUploadFile(serFilename, data, serUnzip, fileId);
+                var result = PostUploadFile(filename, data, unzip, fileId);
                 return GetRequestAndLog(nameof(UploadWithId), result);
             }
             catch (Exception ex)
@@ -83,8 +83,8 @@ namespace Ser.Engine.Rest.Controllers
         /// Upload a file to the service.
         /// </summary>
         /// <param name="data">The file data to upload.</param>
-        /// <param name="serFilename">The Name of the file</param>
-        /// <param name="serUnzip">Unpacking zip files after upload.</param>
+        /// <param name="filename">The Name of the file</param>
+        /// <param name="unzip">Unpacking zip files after upload.</param>
         /// <response code="200">Returns a new generated file id.</response>
         [HttpPost]
         [Route("/api/v1/file")]
@@ -93,12 +93,12 @@ namespace Ser.Engine.Rest.Controllers
         [Produces("application/json")]
         [SwaggerOperation("Upload", "Upload a file to the service.", Tags = new[] { "Upload File" })]
         [SwaggerResponse(statusCode: 200, type: typeof(OperationResult), description: "Returns a new generated file id.")]
-        public virtual IActionResult Upload([FromBody][Required] Stream data, [FromHeader][Required] string serFilename, [FromHeader] bool serUnzip = false)
+        public virtual IActionResult Upload([FromBody][Required] Stream data, [FromHeader][Required] string filename, [FromHeader] bool unzip = false)
         {
             try
             {
                 logger.Trace("Start upload file");
-                var result = PostUploadFile(serFilename, data, serUnzip);
+                var result = PostUploadFile(filename, data, unzip);
                 return GetRequestAndLog(nameof(Upload), result);
             }
             catch (Exception ex)
@@ -111,7 +111,7 @@ namespace Ser.Engine.Rest.Controllers
         /// Get the files from the service.
         /// </summary>
         /// <param name="fileId">The file id that has been created.</param>
-        /// <param name="serFilename">Special file to be returned.</param>
+        /// <param name="filename">Special file to be returned.</param>
         /// <response code="200">Returns the file from id.</response>
         [HttpGet]
         [Route("/api/v1/file/{fileId}")]
@@ -119,12 +119,12 @@ namespace Ser.Engine.Rest.Controllers
         [Produces("application/octet-stream")]
         [SwaggerOperation("DownloadFiles", "Get the files from the service.", Tags = new[] { "Download File" })]
         [SwaggerResponse(statusCode: 200, type: typeof(IFormFile), description: "Returns the file(s) from id.")]
-        public virtual IActionResult DownloadFiles([FromRoute][Required] Guid fileId, [FromHeader] string serFilename)
+        public virtual IActionResult DownloadFiles([FromRoute][Required] Guid fileId, [FromHeader] string filename)
         {
             try
             {
-                logger.Trace($"Start get file content - Id: {fileId} Filename: {serFilename}");
-                var data = GetUploadFile(fileId, serFilename);
+                logger.Trace($"Start get file content - Id: {fileId} Filename: {filename}");
+                var data = GetUploadFile(fileId, filename);
                 logger.Trace($"{nameof(DownloadFiles)} - Response file data length: {data.Length}");
                 return File(data, "application/octet-stream", "download.zip");
             }
