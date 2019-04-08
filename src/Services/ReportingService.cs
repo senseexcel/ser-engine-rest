@@ -21,6 +21,7 @@ namespace Ser.Engine.Rest.Services
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json.Linq;
     using NLog;
+    using Prometheus;
     using Ser.Api;
     using Ser.Engine.Jobs;
     #endregion
@@ -36,6 +37,7 @@ namespace Ser.Engine.Rest.Services
 
         #region Properties && Variables
         private ConcurrentDictionary<Guid, JobManager> managerPool;
+        private Counter taskCounter = null;
 
         /// <summary>
         /// Reporting Options
@@ -58,6 +60,11 @@ namespace Ser.Engine.Rest.Services
             Options = options ?? throw new Exception("No reporting options found.");
             managerPool = new ConcurrentDictionary<Guid, JobManager>();
             WorkingCount = 0;
+
+            taskCounter = Metrics.CreateCounter($"workerGauge", "Number of tasks", new CounterConfiguration()
+            {
+                LabelNames = new[] { "worker" }
+            });
         }
         #endregion
 
@@ -124,6 +131,7 @@ namespace Ser.Engine.Rest.Services
                 logger.Debug($"The Task {taskId} was finished.");
                 managerPool.TryRemove(taskId, out manager);
                 WorkingCount--;
+                taskCounter.Inc(WorkingCount);
             }
             catch (Exception ex)
             {
@@ -160,6 +168,8 @@ namespace Ser.Engine.Rest.Services
             logger.Debug("Stop all jobs.");
             foreach (var manager in managerPool)
                 manager.Value?.Stop();
+            WorkingCount = 0;
+            taskCounter.Inc(WorkingCount);
         }
         #endregion
 
@@ -223,6 +233,7 @@ namespace Ser.Engine.Rest.Services
         public void RunNewTask(Guid taskId, string jsonContent)
         {
             WorkingCount++;
+            taskCounter.Inc(WorkingCount);
             Task.Run(() =>
             {
                 var task = new Task(() => RunTask(taskId, jsonContent));
