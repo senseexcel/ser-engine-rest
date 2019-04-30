@@ -29,6 +29,7 @@ namespace Ser.Engine.Rest
     using Microsoft.Extensions.Options;
     using Microsoft.AspNetCore.Rewrite;
     using System.Net;
+    using Prometheus;
     #endregion
 
     /// <summary>
@@ -138,10 +139,16 @@ namespace Ser.Engine.Rest
         {
             try
             {
+                var counter = Metrics.CreateCounter("PathCounter", "Counts requests to endpoints", new CounterConfiguration
+                {
+                    LabelNames = new[] { "method", "endpoint" }
+                });
+
                 var options = new RewriteOptions()
                    .AddRedirect("(^$)|(index.html)", "swagger/index.html");
 
                 app.UseMvc()
+                   .UseMetricServer()
                    .UseDefaultFiles()
                    .UseStaticFiles()
                    .UseSwagger()

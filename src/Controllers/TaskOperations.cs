@@ -157,7 +157,7 @@ namespace Ser.Engine.Rest.Controllers
         /// <summary>
         /// Gets the results from all Tasks.
         /// </summary>
-        /// <param name="serTaskStatus">Get all tasks with this status.</param>
+        /// <param name="taskStatus">Get all tasks with this status.</param>
         /// <response code="200">Gets the results from all Tasks.</response>
         [HttpGet]
         [Route("/api/v1/task")]
@@ -165,15 +165,15 @@ namespace Ser.Engine.Rest.Controllers
         [Produces("application/json")]
         [SwaggerOperation("Tasks", "Gets the results from all Tasks.", Tags = new[] { "Task Status" })]
         [SwaggerResponse(statusCode: 200, type: typeof(OperationResult), description: "Gets the results from all Tasks.")]
-        public virtual IActionResult Tasks([FromHeader] string serTaskStatus)
+        public virtual IActionResult Tasks([FromHeader] string taskStatus)
         {
             try
             {
                 logger.Trace($"Start get all task.");
-                TaskStatusInfo? taskStatus = null;
-                if (!String.IsNullOrEmpty(serTaskStatus))
-                    taskStatus = (TaskStatusInfo)Enum.Parse(typeof(TaskStatusInfo), serTaskStatus, true);
-                var result = GetTasks(null, taskStatus);
+                TaskStatusInfo? taskStatusInfo = null;
+                if (!String.IsNullOrEmpty(taskStatus))
+                    taskStatusInfo = (TaskStatusInfo)Enum.Parse(typeof(TaskStatusInfo), taskStatus, true);
+                var result = GetTasks(null, taskStatusInfo);
                 return GetRequestAndLog(nameof(Tasks), result);
             }
             catch (Exception ex)

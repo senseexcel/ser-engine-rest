@@ -1,20 +1,27 @@
-FROM microsoft/dotnet:2.2-aspnetcore-runtime AS base
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2 AS base
 WORKDIR /app
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+ ca-certificates \
+ libc6 \
+ libgcc1 \
+ libgssapi-krb5-2 \
+ libicu57 \
+ liblttng-ust0 \
+ libssl1.0.2 \
+ libstdc++6 \
+ zlib1g \
+ libgdiplus \
+ libc6-dev \
+ curl \
+ && rm -rf /var/lib/apt/lists/* \
+ && ln -s /usr/lib/libgdiplus.so /usr/lib/gdiplus.dll
+
 EXPOSE 80
 EXPOSE 443
 
-FROM microsoft/dotnet:2.2-sdk AS build
-WORKDIR /src
-COPY ["ser-engine-rest.csproj", "ser-engine-rest/"]
-RUN dotnet restore "ser-engine-rest.csproj"
-COPY . .
-WORKDIR "."
-RUN dotnet build "ser-engine-rest.csproj" -c Release -o /app
-
-FROM build AS publish
-RUN dotnet publish "ser-engine-rest.csproj" -c Release -o /app
-
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app .
-ENTRYPOINT ["dotnet", "ser-engine-rest.dll"]
+COPY . .
+
+ENTRYPOINT ["dotnet", "SerEngineRest.dll"]
