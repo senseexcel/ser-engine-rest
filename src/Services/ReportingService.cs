@@ -127,7 +127,7 @@ namespace Ser.Engine.Rest.Services
                 logger.Debug($"The Task {taskId} was started.");
                 var manager = CreateManager(taskFolder);
                 managerPool.TryAdd(taskId, manager);
-                manager.Run(jobJson);
+                manager.Run(jobJson, taskId.ToString());
                 logger.Debug($"The Task {taskId} was finished.");
                 managerPool.TryRemove(taskId, out manager);
                 WorkingCount--;
