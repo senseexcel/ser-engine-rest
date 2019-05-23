@@ -70,7 +70,7 @@
     <When Condition="'$(Configuration)' == 'Release'">
       <ItemGroup>
         <PackageReference Include="Ser.Api" Version="3.5.0" />
-        <PackageReference Include="Ser.Engine" Version="3.4.17" />
+        <PackageReference Include="Ser.Engine" Version="3.4.18" />
       </ItemGroup>
     </When>
     <Otherwise>
