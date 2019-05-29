@@ -25,10 +25,10 @@
 
   <ItemGroup>
     <PackageReference Include="Hjson" Version="3.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="NLog" Version="4.5.11" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.4.0" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="NLog" Version="4.6.4" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.0" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.2" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
     <PackageReference Include="prometheus-net" Version="3.1.2" />
@@ -69,8 +69,8 @@
   <Choose>
     <When Condition="'$(Configuration)' == 'Release'">
       <ItemGroup>
-        <PackageReference Include="Ser.Api" Version="3.5.0" />
-        <PackageReference Include="Ser.Engine" Version="3.4.17" />
+        <PackageReference Include="Ser.Api" Version="3.5.1" />
+        <PackageReference Include="Ser.Engine" Version="3.4.19" />
       </ItemGroup>
     </When>
     <Otherwise>
