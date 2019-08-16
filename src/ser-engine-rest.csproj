@@ -26,17 +26,17 @@
   <ItemGroup>
     <PackageReference Include="Hjson" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="NLog" Version="4.6.5" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.1" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.3" />
+    <PackageReference Include="NLog" Version="4.6.6" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.2" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.4" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />
     <PackageReference Include="prometheus-net" Version="3.1.4" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="3.1.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-beta" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0-beta" />
     <PackageReference Include="System.Drawing.Common" Version="4.5.1" />
-    <PackageReference Include="GitVersionTask" Version="4.0.0">
+    <PackageReference Include="GitVersionTask" Version="5.0.1">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
@@ -70,7 +70,10 @@
     <When Condition="'$(Configuration)' == 'Release'">
       <ItemGroup>
         <PackageReference Include="Ser.Api" Version="3.5.1" />
-        <PackageReference Include="Ser.Engine" Version="3.4.24" />
+        <Reference Include="Ser.Engine">
+          <HintPath>..\..\ser-engine\src\bin\Release\$(TargetFramework)\publish\ser-engine.dll</HintPath>
+          <EmbedInteropTypes></EmbedInteropTypes>
+        </Reference>
       </ItemGroup>
     </When>
     <Otherwise>
