@@ -30,6 +30,7 @@ namespace Ser.Engine.Rest
     using Microsoft.AspNetCore.Rewrite;
     using System.Net;
     using Prometheus;
+    using System.Text;
     #endregion
 
     /// <summary>

@@ -39,6 +39,7 @@
     <PackageReference Include="GitVersionTask" Version="5.0.1">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup>
