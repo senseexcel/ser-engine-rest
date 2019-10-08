@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <Authors>Konrad Mattheis und Martin Berthold</Authors>
     <Company>senseexcel</Company>
     <Copyright>Copyright (c) 2019</Copyright>
@@ -25,20 +25,21 @@
 
   <ItemGroup>
     <PackageReference Include="Hjson" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="NLog" Version="4.6.6" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.2" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.4" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />
-    <PackageReference Include="prometheus-net" Version="3.1.4" />
-    <PackageReference Include="prometheus-net.AspNetCore" Version="3.1.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-beta" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0-beta" />
-    <PackageReference Include="System.Drawing.Common" Version="4.5.1" />
+    <PackageReference Include="NLog" Version="4.6.7" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.6.0" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.6" />
+    <PackageReference Include="prometheus-net" Version="3.2.1" />
+    <PackageReference Include="prometheus-net.AspNetCore" Version="3.2.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0-rc4" />
+    <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
     <PackageReference Include="GitVersionTask" Version="5.0.1">
+    <!--<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />-->
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,18 +59,10 @@
       <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-
-  <Choose>
-    <When Condition="'$(Configuration)' == 'Release'">
       <ItemGroup>
-        <PackageReference Include="Ser.Api" Version="3.5.1" />
+        <Reference Include="Ser.Api">
+          <HintPath>..\..\ser-api-nuget\src\bin\Release\$(TargetFramework)\SerApi.dll</HintPath>
+        </Reference>
         <Reference Include="Ser.Engine">
           <HintPath>..\..\ser-engine\src\bin\Release\$(TargetFramework)\publish\ser-engine.dll</HintPath>
           <EmbedInteropTypes></EmbedInteropTypes>
@@ -77,6 +70,9 @@
       </ItemGroup>
     </When>
     <Otherwise>
+      <PropertyGroup>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+      </PropertyGroup>
       <ItemGroup>
         <Reference Include="Ser.Api">
           <HintPath>..\..\ser-api-nuget\src\bin\Debug\$(TargetFramework)\SerApi.dll</HintPath>
@@ -89,11 +85,11 @@
     </Otherwise>
   </Choose>
 
-  <Target Name="PublishToNugetWithAPIKey" AfterTargets="GenerateNuspec" Condition="Exists('$(SolutionDir)\..\..\nugetapikey.txt')">
+  <!--<Target Name="PublishToNugetWithAPIKey" AfterTargets="GenerateNuspec" Condition="Exists('$(SolutionDir)\..\..\nugetapikey.txt')">
     <ReadLinesFromFile File="$(SolutionDir)\..\..\nugetapikey.txt">
       <Output TaskParameter="Lines" PropertyName="NugetAPIKey" />
     </ReadLinesFromFile>
     <Exec WorkingDirectory="$(BaseDir)" Command="dotnet nuget push $(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).nupkg -k $(NugetAPIKey) -s https://api.nuget.org/v3/index.json" />
-  </Target>
+  </Target>-->
 
 </Project>

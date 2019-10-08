@@ -30,6 +30,8 @@ namespace Ser.Engine.Rest
     using Microsoft.AspNetCore.Rewrite;
     using System.Net;
     using Prometheus;
+    using System.Text;
+    using Microsoft.AspNetCore.Hosting;
     #endregion
 
     /// <summary>
@@ -42,7 +44,7 @@ namespace Ser.Engine.Rest
         #endregion
 
         #region Properties And Variables
-        private readonly IHostingEnvironment HostingEnv = null;
+        private readonly IWebHostEnvironment HostingEnv = null;
         private readonly IConfiguration Configuration = null;
         #endregion
 
@@ -52,7 +54,7 @@ namespace Ser.Engine.Rest
         /// </summary>
         /// <param name="env">Hosting Varibales</param>
         /// <param name="configuration">App Configuration</param>
-        public Startup(IHostingEnvironment env, IConfiguration configuration)
+        public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
             HostingEnv = env;
             Configuration = configuration;
@@ -81,8 +83,8 @@ namespace Ser.Engine.Rest
                     {
                         options.InputFormatters.Add(new DataInputFormatter());
                         options.ModelMetadataDetailsProviders.Add(new SuppressChildValidationMetadataProvider(typeof(Stream)));
-                    })
-                    .AddJsonOptions(opts =>
+                        options.EnableEndpointRouting = false;
+                    }).AddNewtonsoftJson(opts =>
                     {
                         opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                         opts.SerializerSettings.Converters.Add(new StringEnumConverter());
@@ -118,7 +120,7 @@ namespace Ser.Engine.Rest
                                 Name = "MIT"
                             }
                         });
-                        options.DescribeAllEnumsAsStrings();
+                        //options.DescribeAllEnumsAsStrings();
                         options.EnableAnnotations();
                         options.IncludeXmlComments($"{Path.Combine(AppContext.BaseDirectory, HostingEnv.ApplicationName)}.xml");
                         options.DocumentFilter<OpenApiDocumentFilter>(servers, writeDocs);
