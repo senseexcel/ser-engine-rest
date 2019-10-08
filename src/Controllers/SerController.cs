@@ -33,6 +33,7 @@ namespace Ser.Engine.Rest
     using System.Collections.Concurrent;
     using Ser.Engine.Rest.Services;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.AspNetCore.Hosting;
     #endregion
 
     /// <summary>
