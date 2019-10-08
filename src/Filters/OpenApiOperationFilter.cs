@@ -17,9 +17,6 @@ namespace Ser.Engine.Rest.Filters
     using Microsoft.OpenApi.Models;
     using NLog;
     using Swashbuckle.AspNetCore.SwaggerGen;
-    using Microsoft.AspNetCore.Http;
-    using System.Collections.Generic;
-    using Microsoft.AspNetCore.Http.Internal;
     #endregion
 
     /// <summary>

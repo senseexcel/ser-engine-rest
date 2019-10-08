@@ -23,11 +23,6 @@ namespace Ser.Engine.Rest.Controllers
     using Microsoft.AspNetCore.Http;
     using System.IO;
     using Newtonsoft.Json.Linq;
-    using System.ComponentModel;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http.Internal;
-    using System.Net.Http.Headers;
     using Microsoft.Extensions.Hosting;
     #endregion
 

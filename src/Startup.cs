@@ -82,8 +82,7 @@ namespace Ser.Engine.Rest
                     {
                         options.InputFormatters.Add(new DataInputFormatter());
                         options.ModelMetadataDetailsProviders.Add(new SuppressChildValidationMetadataProvider(typeof(Stream)));
-                    })
-                    .AddJsonOptions(opts =>
+                    }).AddNewtonsoftJson(opts =>
                     {
                         opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                         opts.SerializerSettings.Converters.Add(new StringEnumConverter());

@@ -9,8 +9,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace Ser.Engine.Rest
 {
+    using Microsoft.AspNetCore.Http;
     #region Usings
-    using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.AspNetCore.Mvc.Formatters;
     using NLog;
     using System;
@@ -74,7 +74,7 @@ namespace Ser.Engine.Rest
                 if (context == null)
                     throw new ArgumentNullException(nameof(context));
                 var req = context.HttpContext.Request;
-                req.EnableRewind();
+                HttpRequestRewindExtensions.EnableBuffering(req);
                 var memoryStream = new MemoryStream();
                 context.HttpContext.Request.Body.CopyTo(memoryStream);
                 req.Body.Seek(0, SeekOrigin.Begin);
