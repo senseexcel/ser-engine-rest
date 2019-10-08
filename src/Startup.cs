@@ -32,6 +32,7 @@ namespace Ser.Engine.Rest
     using Prometheus;
     using System.Text;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Server.Kestrel.Core;
     #endregion
 
     /// <summary>
@@ -77,8 +78,11 @@ namespace Ser.Engine.Rest
                 };
 
                 services
-                    .AddSingleton<IConfiguration>(Configuration)
-                    .AddSingleton<IHostedService, ReportingService>(s => new ReportingService(reportingOptions))
+                    .Configure<KestrelServerOptions>(options =>
+                    {
+                        options.AllowSynchronousIO = true;
+                    })
+                    .AddSingleton(Configuration)
                     .AddMvc(options =>
                     {
                         options.InputFormatters.Add(new DataInputFormatter());
@@ -125,7 +129,8 @@ namespace Ser.Engine.Rest
                         options.IncludeXmlComments($"{Path.Combine(AppContext.BaseDirectory, HostingEnv.ApplicationName)}.xml");
                         options.DocumentFilter<OpenApiDocumentFilter>(servers, writeDocs);
                         options.OperationFilter<OpenApiOperationFilter>();
-                    });
+                    })
+                    .AddSingleton<IHostedService, ReportingService>(s => new ReportingService(reportingOptions));
             }
             catch (Exception ex)
             {

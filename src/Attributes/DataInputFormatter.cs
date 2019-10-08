@@ -9,15 +9,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace Ser.Engine.Rest
 {
-    using Microsoft.AspNetCore.Http;
     #region Usings
-    using Microsoft.AspNetCore.Mvc.Formatters;
     using NLog;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Mvc.Formatters;
+    using Microsoft.AspNetCore.Http;
     #endregion
 
     /// <summary>
