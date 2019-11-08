@@ -60,7 +60,7 @@
           <HintPath>..\..\ser-api-nuget\src\bin\Release\$(TargetFramework)\SerApi.dll</HintPath>
         </Reference>
         <Reference Include="Ser.Engine">
-          <HintPath>..\..\ser-engine\src\bin\Release\$(TargetFramework)\publish\ser-engine.dll</HintPath>
+          <HintPath>..\..\ser-engine\src\bin\Release\$(TargetFramework)\ser-engine.dll</HintPath>
           <EmbedInteropTypes></EmbedInteropTypes>
         </Reference>
       </ItemGroup>
@@ -71,7 +71,7 @@
           <HintPath>..\..\ser-api-nuget\src\bin\Debug\$(TargetFramework)\SerApi.dll</HintPath>
         </Reference>
         <Reference Include="Ser.Engine">
-          <HintPath>..\..\ser-engine\src\bin\Debug\$(TargetFramework)\publish\ser-engine.dll</HintPath>
+          <HintPath>..\..\ser-engine\src\bin\Debug\$(TargetFramework)\ser-engine.dll</HintPath>
           <EmbedInteropTypes></EmbedInteropTypes>
         </Reference>
       </ItemGroup>
