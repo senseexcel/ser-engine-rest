@@ -26,16 +26,20 @@
             try
             {
                 SetLoggerSettings("App.config");
+                Console.WriteLine("Generate Client file for SER Connector...");
 
-                var openApiFile =  @"C:\Users\MBerthold\Documents\Entwicklung\SenseExcelReporting\ser-engine-rest\src\bin\Debug\netcoreapp3.0\OpenAPI.json";
+                //Path to the OPEN API File
+                var basePath = Path.GetFullPath($"{AppContext.BaseDirectory}..\\..\\..\\..");
+                var openApiFile = Path.Combine(basePath, "src\\bin\\Debug\\netcoreapp3.0\\OpenAPI.json");
 
                 //Create new .cs file from Api
                 //BUG: with Stream in 3.0 use 2.0 for generator
                 CreateCsFile(openApiFile);
+                Console.WriteLine("Finish");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine($"Error: {ex.ToString()}");
                 Console.ReadLine();
             }
         }
