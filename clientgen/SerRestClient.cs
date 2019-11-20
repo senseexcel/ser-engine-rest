@@ -1053,29 +1053,29 @@ namespace Ser.Engine.Rest.Client
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.0.27.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class Stream 
     {
-        [Newtonsoft.Json.JsonProperty("canRead", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? CanRead { get; set; }
+        [Newtonsoft.Json.JsonProperty("canRead", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool CanRead { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("canSeek", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? CanSeek { get; set; }
+        [Newtonsoft.Json.JsonProperty("canSeek", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool CanSeek { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("canTimeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? CanTimeout { get; set; }
+        [Newtonsoft.Json.JsonProperty("canTimeout", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool CanTimeout { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("canWrite", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? CanWrite { get; set; }
+        [Newtonsoft.Json.JsonProperty("canWrite", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool CanWrite { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("length", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long? Length { get; set; }
+        [Newtonsoft.Json.JsonProperty("length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long Length { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("position", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long? Position { get; set; }
+        [Newtonsoft.Json.JsonProperty("position", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long Position { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("readTimeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? ReadTimeout { get; set; }
+        [Newtonsoft.Json.JsonProperty("readTimeout", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int ReadTimeout { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("writeTimeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? WriteTimeout { get; set; }
+        [Newtonsoft.Json.JsonProperty("writeTimeout", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int WriteTimeout { get; set; }
     
     
     }
@@ -1162,9 +1162,9 @@ namespace Ser.Engine.Rest.Client
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.0.27.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class SerCredentials 
     {
-        [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public QlikCredentialType? Type { get; set; }
+        public QlikCredentialType Type { get; set; }
     
         [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Key { get; set; }
@@ -1191,11 +1191,11 @@ namespace Ser.Engine.Rest.Client
         [Newtonsoft.Json.JsonProperty("app", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string App { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("retryTimeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? RetryTimeout { get; set; } = 0;
+        [Newtonsoft.Json.JsonProperty("retryTimeout", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int RetryTimeout { get; set; } = 0;
     
-        [Newtonsoft.Json.JsonProperty("sslVerify", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? SslVerify { get; set; } = true;
+        [Newtonsoft.Json.JsonProperty("sslVerify", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool SslVerify { get; set; } = true;
     
         [Newtonsoft.Json.JsonProperty("sslValidThumbprints", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<SerThumbprint> SslValidThumbprints { get; set; }
@@ -1203,7 +1203,7 @@ namespace Ser.Engine.Rest.Client
         [Newtonsoft.Json.JsonProperty("identities", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> Identities { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("credentials", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("credentials", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public SerCredentials Credentials { get; set; }
     
         [Newtonsoft.Json.JsonProperty("lefs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -1230,7 +1230,7 @@ namespace Ser.Engine.Rest.Client
         [Newtonsoft.Json.JsonProperty("distribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Distribute { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("connection", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("connection", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public SerConnection Connection { get; set; }
     
     
@@ -1239,18 +1239,18 @@ namespace Ser.Engine.Rest.Client
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.0.27.0 (Newtonsoft.Json v12.0.0.0)")]
     public partial class JobResult 
     {
-        [Newtonsoft.Json.JsonProperty("taskId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid? TaskId { get; set; }
+        [Newtonsoft.Json.JsonProperty("taskId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid TaskId { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("startTime", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? StartTime { get; set; }
+        [Newtonsoft.Json.JsonProperty("startTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset StartTime { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("runTime", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("runTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string RunTime { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public TaskStatusInfo? Status { get; set; }
+        public TaskStatusInfo Status { get; set; }
     
         [Newtonsoft.Json.JsonProperty("asposeVersion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AsposeVersion { get; set; }
@@ -1258,8 +1258,8 @@ namespace Ser.Engine.Rest.Client
         [Newtonsoft.Json.JsonProperty("engineVersion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string EngineVersion { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Count { get; set; }
+        [Newtonsoft.Json.JsonProperty("count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Count { get; set; }
     
         [Newtonsoft.Json.JsonProperty("reports", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Report> Reports { get; set; }
@@ -1272,8 +1272,8 @@ namespace Ser.Engine.Rest.Client
     public partial class OperationResult 
     {
         /// <summary>Result of operation</summary>
-        [Newtonsoft.Json.JsonProperty("success", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Success { get; set; }
+        [Newtonsoft.Json.JsonProperty("success", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool Success { get; set; }
     
         /// <summary>Error message</summary>
         [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -1288,8 +1288,8 @@ namespace Ser.Engine.Rest.Client
         public string Health { get; set; }
     
         /// <summary>Count of job are running</summary>
-        [Newtonsoft.Json.JsonProperty("workingCount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? WorkingCount { get; set; }
+        [Newtonsoft.Json.JsonProperty("workingCount", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int WorkingCount { get; set; }
     
         /// <summary>List an reports</summary>
         [Newtonsoft.Json.JsonProperty("results", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
