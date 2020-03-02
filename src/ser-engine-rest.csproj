@@ -57,7 +57,7 @@
     <When Condition="'$(Configuration)' == 'Release'">
       <ItemGroup>
         <Reference Include="Ser.Api">
-          <HintPath>..\..\ser-api-nuget\src\bin\Release\$(TargetFramework)\SerApi.dll</HintPath>
+          <HintPath>..\..\ser-api\src\bin\Release\$(TargetFramework)\SerApi.dll</HintPath>
         </Reference>
         <Reference Include="Ser.Engine">
           <HintPath>..\..\ser-engine\src\bin\Release\$(TargetFramework)\ser-engine.dll</HintPath>
@@ -68,7 +68,7 @@
     <Otherwise>
       <ItemGroup>
         <Reference Include="Ser.Api">
-          <HintPath>..\..\ser-api-nuget\src\bin\Debug\$(TargetFramework)\SerApi.dll</HintPath>
+          <HintPath>..\..\ser-api\src\bin\Debug\$(TargetFramework)\SerApi.dll</HintPath>
         </Reference>
         <Reference Include="Ser.Engine">
           <HintPath>..\..\ser-engine\src\bin\Debug\$(TargetFramework)\ser-engine.dll</HintPath>
