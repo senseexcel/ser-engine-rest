@@ -147,7 +147,7 @@ namespace Ser.Engine.Rest
                    .UseSwagger()
                    .UseSwaggerUI(swagOptions =>
                    {
-                       swagOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "SER ENGINE REST - Service Documentation");
+                       swagOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "REPORTING REST SERVICE - Documentation");
                    })
                    .UseRewriter(options);
             }
