@@ -30,7 +30,7 @@
 
                 //Path to the OPEN API File
                 var basePath = Path.GetFullPath($"{AppContext.BaseDirectory}..\\..\\..\\..");
-                var openApiFile = Path.Combine(basePath, "src\\bin\\Debug\\netcoreapp3.0\\OpenAPI.json");
+                var openApiFile = Path.Combine(basePath, "src\\bin\\Debug\\netcoreapp3.1\\OpenAPI.json");
 
                 //Create new .cs file from Api
                 //BUG: with Stream in 3.0 use 2.0 for generator
@@ -63,7 +63,7 @@
             };
             var generator = new CSharpClientGenerator(openapiDoc, settings);
             var code = generator.GenerateFile(NSwag.CodeGeneration.ClientGeneratorOutputType.Full);
-            var codePath = Path.Combine(AppContext.BaseDirectory.Replace("\\bin\\Debug\\netcoreapp3.0\\", "\\"), "SerRestClient.cs");
+            var codePath = Path.Combine(AppContext.BaseDirectory.Replace("\\bin\\Debug\\netcoreapp3.1\\", "\\"), "SerRestClient.cs");
             File.WriteAllText(codePath, code, Encoding.UTF8);
         }
 

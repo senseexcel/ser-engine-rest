@@ -98,12 +98,12 @@ namespace Ser.Engine.Rest
                         options.SwaggerDoc("v1", new OpenApiInfo
                         {
                             Version = "1.0.0",
-                            Title = "SER ENGINE REST - Service",
-                            Description = "This is the OpenAPI schema from the ser engine rest service.",
+                            Title = "REPORTING REST SERVICE",
+                            Description = "This is the OpenAPI schema from the reporting REST rest service.",
                             Contact = new OpenApiContact()
                             {
-                                Name = "Sense Excel Reporting",
-                                Url = new Uri("http://senseexcel.com"),
+                                Name = "Reporting REST Service",
+                                Url = new Uri("https://home.analyticsgate.com/"),
                             },
                             License = new OpenApiLicense()
                             {
