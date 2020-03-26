@@ -46,11 +46,11 @@
 
         private static void CreateCsFile(string filename)
         {
-            var stream = File.OpenRead(filename);
-            var openApiDocument = new OpenApiStreamReader().Read(stream, out var diagnostic);
-            var outputString = openApiDocument.Serialize(OpenApiSpecVersion.OpenApi2_0, OpenApiFormat.Json);
-            filename = Path.Combine(AppContext.BaseDirectory, "openapi20.json");
-            File.WriteAllText(filename, outputString);
+            //var stream = File.OpenRead(filename);
+            //var openApiDocument = new OpenApiStreamReader().Read(stream, out var diagnostic);
+            //var outputString = openApiDocument.Serialize(OpenApiSpecVersion.OpenApi2_0, OpenApiFormat.Json);
+            //filename = Path.Combine(AppContext.BaseDirectory, "openapi20.json");
+            //File.WriteAllText(filename, outputString);
 
             var openapiDoc = OpenApiDocument.FromFileAsync(filename).Result;
             var settings = new CSharpClientGeneratorSettings()
