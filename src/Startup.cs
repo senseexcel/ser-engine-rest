@@ -57,6 +57,22 @@ namespace Ser.Engine.Rest
         {
             try
             {
+                // Check for corupted xml key files from asp.net core
+                var aspKeyRingFolder = Environment.ExpandEnvironmentVariables(@"%LocalAppData%\ASP.net\DataProtection-Keys");
+                if (Directory.Exists(aspKeyRingFolder))
+                {
+                    var xmlKeyRingFiles = Directory.GetFiles(aspKeyRingFolder, "*.xml", SearchOption.TopDirectoryOnly);
+                    foreach (var xmlKeyRingFile in xmlKeyRingFiles)
+                    {
+                        var byteCount = File.ReadAllBytes(xmlKeyRingFile)?.Length ?? 0;
+                        if (byteCount <= 3)
+                        {
+                            logger.Info("Broken key ring file found. This has been removed.");
+                            File.Delete(xmlKeyRingFile);
+                        }
+                    }
+                }
+                
                 var tempFolder = Path.Combine(AppContext.BaseDirectory, Configuration.GetValue<string>("contentRoot"));
                 var reportingOptions = new ReportingServiceOptions()
                 {
