@@ -1,18 +1,8 @@
-#region License
-/*
-Copyright (c) 2019 Konrad Mattheis und Martin Berthold
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-#endregion
-
 namespace Ser.Engine.Rest
 {
     #region Usings
     using System;
     using System.IO;
-    using System.Linq;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -22,15 +12,11 @@ namespace Ser.Engine.Rest
     using Microsoft.OpenApi.Models;
     using System.Collections.Generic;
     using NLog;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc.ModelBinding;
     using Microsoft.Extensions.Hosting;
     using Ser.Engine.Rest.Services;
-    using Microsoft.Extensions.Options;
     using Microsoft.AspNetCore.Rewrite;
-    using System.Net;
     using Prometheus;
-    using System.Text;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Server.Kestrel.Core;
     #endregion
@@ -71,6 +57,22 @@ namespace Ser.Engine.Rest
         {
             try
             {
+                // Check for corupted xml key files from asp.net core
+                var aspKeyRingFolder = Environment.ExpandEnvironmentVariables(@"%LocalAppData%\ASP.net\DataProtection-Keys");
+                if (Directory.Exists(aspKeyRingFolder))
+                {
+                    var xmlKeyRingFiles = Directory.GetFiles(aspKeyRingFolder, "*.xml", SearchOption.TopDirectoryOnly);
+                    foreach (var xmlKeyRingFile in xmlKeyRingFiles)
+                    {
+                        var byteCount = File.ReadAllBytes(xmlKeyRingFile)?.Length ?? 0;
+                        if (byteCount <= 3)
+                        {
+                            logger.Info("Broken key ring file found. This has been removed.");
+                            File.Delete(xmlKeyRingFile);
+                        }
+                    }
+                }
+                
                 var tempFolder = Path.Combine(AppContext.BaseDirectory, Configuration.GetValue<string>("contentRoot"));
                 var reportingOptions = new ReportingServiceOptions()
                 {
@@ -112,12 +114,12 @@ namespace Ser.Engine.Rest
                         options.SwaggerDoc("v1", new OpenApiInfo
                         {
                             Version = "1.0.0",
-                            Title = "SER ENGINE REST - Service",
-                            Description = "This is the OpenAPI schema from the ser engine rest service.",
+                            Title = "REPORTING REST SERVICE",
+                            Description = "This is the OpenAPI schema from the reporting REST rest service.",
                             Contact = new OpenApiContact()
                             {
-                                Name = "Sense Excel Reporting",
-                                Url = new Uri("http://senseexcel.com"),
+                                Name = "Reporting REST Service",
+                                Url = new Uri("https://home.analyticsgate.com/"),
                             },
                             License = new OpenApiLicense()
                             {
@@ -161,7 +163,7 @@ namespace Ser.Engine.Rest
                    .UseSwagger()
                    .UseSwaggerUI(swagOptions =>
                    {
-                       swagOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "SER ENGINE REST - Service Documentation");
+                       swagOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "REPORTING REST SERVICE - Documentation");
                    })
                    .UseRewriter(options);
             }
