@@ -141,7 +141,8 @@
                 try
                 {
                     logger.Debug($"Delete folder {folder}");
-                    Directory.Delete(folder, true);
+                    if (Directory.Exists(folder))
+                        Directory.Delete(folder, true);
                 }
                 catch (Exception ex)
                 {
