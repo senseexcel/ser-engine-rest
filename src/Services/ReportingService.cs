@@ -27,6 +27,7 @@
         #region Properties && Variables
         private ConcurrentDictionary<Guid, JobManager> managerPool;
         private Counter taskCounter = null;
+        private object threadlock = new object();
 
         /// <summary>
         /// Reporting Options
@@ -141,8 +142,11 @@
                 try
                 {
                     logger.Debug($"Delete folder {folder}");
-                    if (Directory.Exists(folder))
-                        Directory.Delete(folder, true);
+                    lock (threadlock)
+                    {
+                        if (Directory.Exists(folder))
+                            Directory.Delete(folder, true);
+                    }
                 }
                 catch (Exception ex)
                 {
