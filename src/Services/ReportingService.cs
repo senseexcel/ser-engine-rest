@@ -286,7 +286,11 @@
         {
             if (taskId.HasValue)
             {
-                var manager = managerPool[taskId.Value];
+                var key = managerPool?.Keys?.ToList()?.FirstOrDefault(t => t.ToString() == taskId?.ToString()) ?? new Guid();
+                if (key == Guid.Empty)
+                    return true;
+
+                var manager = managerPool[key];
                 if (manager != null)
                 {
                     var task = manager?.Tasks.FirstOrDefault(t => t.JobParameters.WorkDir.Contains(taskId.ToString())) ?? null;
