@@ -7,27 +7,30 @@
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Hosting;
     using Newtonsoft.Json.Linq;
     using NLog;
     using Prometheus;
     using Ser.Api;
     using Ser.Engine.Jobs;
+    using Ser.Engine.Rest.Model;
     #endregion
 
     /// <summary>
     /// Reporting service
     /// </summary>
-    public class ReportingService : BackgroundService
+    public class ReportingService : IHostedService
     {
         #region Logger
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly static Logger logger = LogManager.GetCurrentClassLogger();
         #endregion
 
         #region Properties && Variables
-        private ConcurrentDictionary<Guid, JobManager> managerPool;
-        private Counter taskCounter = null;
-        private object threadlock = new object();
+        private readonly ConcurrentDictionary<Guid, JobManager> managerPool;
+        private readonly Counter taskCounter = null;
+        private readonly object threadlock = new object();
 
         /// <summary>
         /// Reporting Options
@@ -59,18 +62,18 @@
         #endregion
 
         #region Private Methods
-        private AppParameter GetJobParameter(string workdir)
+        private static AppParameter GetJobParameter(string workdir)
         {
             var args = new string[] { $"--workdir={workdir}" };
             return new AppParameter(args);
         }
 
-        private JobManager CreateManager(string workdir)
+        private static JobManager CreateManager(string workdir)
         {
             return new JobManager(GetJobParameter(workdir));
         }
 
-        private void CopyFiles(string sourceFolder, string targetFolder)
+        private static void CopyFiles(string sourceFolder, string targetFolder)
         {
             try
             {
@@ -94,69 +97,6 @@
             }
         }
 
-        private void RunTask(Guid taskId, string jobJson)
-        {
-            try
-            {
-                logger.Debug($"START - {taskId}");
-
-                var taskFolder = Path.Combine(Options.TempFolder, taskId.ToString());
-                Directory.CreateDirectory(taskFolder);
-                var jObject = JObject.Parse(jobJson) as dynamic;
-                JArray guidArray = jObject?.uploadGuids ?? null;
-                if (guidArray != null)
-                {
-                    foreach (var item in guidArray)
-                    {
-                        var uploadFolder = Path.Combine(Options.TempFolder, item.Value<string>());
-                        logger.Debug($"Copy file from {uploadFolder} to {taskFolder}.");
-                        CopyFiles(uploadFolder, taskFolder);
-                    }
-                }
-
-                logger.Debug($"The Task {taskId} was started.");
-                var manager = CreateManager(taskFolder);
-                managerPool.TryAdd(taskId, manager);
-                manager.Run(jobJson, taskId.ToString());
-                logger.Debug($"The Task {taskId} was finished.");
-                managerPool.TryRemove(taskId, out manager);
-                WorkingCount--;
-                taskCounter.Inc(WorkingCount);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, $"The task {taskId} failed.");
-            }
-        }
-
-        private void Delete(Guid? id = null)
-        {
-            var folders = new List<string>();
-            if (id.HasValue)
-                folders.Add(Path.Combine(Options.TempFolder, id.ToString()));
-            else
-                folders.AddRange(Directory.GetDirectories(Options.TempFolder, "*.*", SearchOption.TopDirectoryOnly));
-
-            foreach (var folder in folders)
-            {
-                try
-                {
-                    logger.Debug($"Delete folder {folder}");
-                    lock (threadlock)
-                    {
-                        if (Directory.Exists(folder))
-                            Directory.Delete(folder, true);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, $"The folder {folder} could not delete.");
-                }
-            }
-
-            logger.Debug("The deletion was completed.");
-        }
-
         private void StopAllJobs()
         {
             logger.Debug("Stop all jobs.");
@@ -167,72 +107,72 @@
         }
         #endregion
 
+        #region HostingService Methods
+        /// <summary>
+        /// Initialize things
+        /// </summary>
+        /// <param name="cancellationToken">cancellation token</param>
+        /// <returns></returns>
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// dispose things
+        /// </summary>
+        /// <param name="cancellationToken">cancellation token</param>
+        /// <returns></returns>
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+        #endregion
+
         #region Public Methods
-        /// <summary>
-        /// Write uploaded file to folder
-        /// </summary>
-        /// <param name="fileId">Name of the file</param>
-        /// <param name="fileData">File as stream</param>
-        /// <param name="filename">Id of the folder</param>
-        /// <param name="unzip">unzip zip files</param>
-        public void WriteUploadFile(Guid fileId, byte[] fileData, string filename, bool unzip)
-        {
-            logger.Debug($"Upload file - ID: {fileId} Name: {filename} Unzip: {unzip}");
-            Task.Run(() =>
-            {
-                try
-                {
-                    var uploadFolder = Path.Combine(Options.TempFolder, fileId.ToString());
-                    Directory.CreateDirectory(uploadFolder);
-                    var fullname = Path.Combine(uploadFolder, filename);
-                    System.IO.File.WriteAllBytes(fullname, fileData);
-                    if (unzip)
-                    {
-                        logger.Debug($"Unzip file {fullname}");
-                        ZipFile.ExtractToDirectory(fullname, uploadFolder, true);
-                    }
-                    logger.Debug($"Upload {fileId} successfully.");
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, $"Upload {fileId} failed.");
-                }
-            });
-        }
-
-        /// <summary>
-        /// Delete upload files
-        /// </summary>
-        /// <param name="fileId">Id of the folder</param>
-        public void DeleteFile(Guid? fileId)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    Delete(fileId);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, "The deletion failed.");
-                }
-            });
-        }
-
         /// <summary>
         /// Start a new reporting task.
         /// </summary>
+        /// <param name="taskConfig">json job content</param>
         /// <param name="taskId">Id of the task</param>
-        /// <param name="jsonContent">json job content</param>
-        public void RunNewTask(Guid taskId, string jsonContent)
+        public Guid RunTask(object taskConfig, Guid taskId)
         {
             WorkingCount++;
             taskCounter.Inc(WorkingCount);
             Task.Run(() =>
             {
-                var task = new Task(() => RunTask(taskId, jsonContent));
-                task.Start();
+                try
+                {
+                    logger.Debug($"START - {taskId}");
+                    var taskFolder = Path.Combine(Options.TempFolder, taskId.ToString());
+                    Directory.CreateDirectory(taskFolder);
+                    var jObject = JObject.FromObject(taskConfig) as dynamic;
+                    JArray guidArray = jObject?.uploadGuids ?? null;
+                    if (guidArray != null)
+                    {
+                        foreach (var item in guidArray)
+                        {
+                            var uploadFolder = Path.Combine(Options.TempFolder, item.Value<string>());
+                            logger.Debug($"Copy file from {uploadFolder} to {taskFolder}.");
+                            CopyFiles(uploadFolder, taskFolder);
+                        }
+                    }
+
+                    logger.Debug($"The Task {taskId} was started.");
+                    var manager = CreateManager(taskFolder);
+                    managerPool.TryAdd(taskId, manager);
+                    manager.Run(taskConfig?.ToString(), taskId.ToString());
+                    logger.Debug($"The Task {taskId} was finished.");
+                    managerPool.TryRemove(taskId, out manager);
+                    WorkingCount--;
+                    taskCounter.Inc(WorkingCount);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, $"The task {taskId} failed.");
+                }
             });
+            return taskId;
         }
 
         /// <summary>
@@ -282,13 +222,13 @@
         /// </summary>
         /// <param name="taskId">Id of the task</param>
         /// <returns>Get status</returns>
-        public bool StopTasks(Guid? taskId = null)
+        public void StopTasks(Guid? taskId = null)
         {
             if (taskId.HasValue)
             {
                 var key = managerPool?.Keys?.ToList()?.FirstOrDefault(t => t.ToString() == taskId?.ToString()) ?? new Guid();
                 if (key == Guid.Empty)
-                    return true;
+                    return;
 
                 var manager = managerPool[key];
                 if (manager != null)
@@ -298,7 +238,7 @@
                     {
                         manager?.Stop();
                         logger.Debug($"The task {taskId.Value} was stopped.");
-                        return true;
+                        return;
                     }
                     else
                         logger.Warn($"The task {taskId.Value} was not found.");
@@ -311,24 +251,21 @@
                 StopAllJobs();
                 WorkingCount = 0;
                 logger.Debug($"All tasks was stopped.");
-                return true;
+                return;
             }
-
-            return false;
         }
-        #endregion
-    }
 
-    /// <summary>
-    /// Reporting options
-    /// </summary>
-    public class ReportingServiceOptions
-    {
-        #region Properties
         /// <summary>
-        /// temp folder for reporting
+        /// Return the reporting service health.
         /// </summary>
-        public string TempFolder { get; set; }
+        /// <returns>health status</returns>
+        public string HealthStatus()
+        {
+            var status = "ready";
+            if (WorkingCount > 0)
+                status = "running";
+            return status;
+        }
         #endregion
     }
 }
