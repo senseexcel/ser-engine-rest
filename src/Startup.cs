@@ -6,18 +6,11 @@ namespace Ser.Engine.Rest
     using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Newtonsoft.Json.Converters;
-    using Newtonsoft.Json.Serialization;
     using Microsoft.OpenApi.Models;
-    using System.Collections.Generic;
     using NLog;
-    using Microsoft.AspNetCore.Mvc.ModelBinding;
     using Microsoft.Extensions.Hosting;
     using Ser.Engine.Rest.Services;
-    using Microsoft.AspNetCore.Rewrite;
-    using Prometheus;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Server.Kestrel.Core;
     using System.Reflection;
     using Swashbuckle.AspNetCore.SwaggerGen;
     using Ser.Engine.Rest.Model;

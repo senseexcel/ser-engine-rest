@@ -5,18 +5,14 @@ namespace Ser.Engine.Rest.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
     using System.ComponentModel.DataAnnotations;
-    using Swashbuckle.AspNetCore.Annotations;
-    using Microsoft.Extensions.Configuration;
     using NLog;
-    using Microsoft.AspNetCore.Http;
     using System.IO;
     using Microsoft.Extensions.Hosting;
     using Ser.Engine.Rest.Services;
-    using Ser.Engine.Rest.Model;
     #endregion
 
     /// <summary>
-    /// Controller for file operations
+    /// File Operations
     /// </summary>
     public class FileOperationsController : Controller
     {

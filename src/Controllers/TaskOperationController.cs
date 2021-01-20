@@ -2,12 +2,9 @@ namespace Ser.Engine.Rest.Controllers
 {
     #region Usings
     using System;
-    using System.Collections.Generic;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
     using System.ComponentModel.DataAnnotations;
-    using Swashbuckle.AspNetCore.Annotations;
-    using Microsoft.Extensions.Configuration;
     using NLog;
     using Ser.Api;
     using Microsoft.Extensions.Hosting;
@@ -15,7 +12,7 @@ namespace Ser.Engine.Rest.Controllers
     #endregion
 
     /// <summary>
-    /// Controller for task operations
+    /// Task Operations
     /// </summary>
     public class TaskOperationsController : Controller
     {
@@ -186,7 +183,7 @@ namespace Ser.Engine.Rest.Controllers
         /// </summary>
         /// <response code="200">Gets the health status from the task.</response>
         [HttpGet]
-        [Route("api/v1/task/health")]
+        [Route("/health")]
         public IActionResult HealthStatus()
         {
             try
