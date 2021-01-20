@@ -26,6 +26,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Working\**" />
+    <Content Remove="Working\**" />
+    <EmbeddedResource Remove="Working\**" />
+    <None Remove="Working\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="SerEngineRest.xml" />
   </ItemGroup>
 

@@ -77,12 +77,9 @@
         {
             try
             {
-                stream.Position = 0;
-                var length = stream.Length;
-                var buffer = new byte[length];
-                stream.Read(buffer, 0, buffer.Length);
-                stream.Close();
-                return buffer;
+                using var ms = new MemoryStream(2048);
+                stream.CopyToAsync(ms);
+                return ms.ToArray();
             }
             catch (Exception ex)
             {

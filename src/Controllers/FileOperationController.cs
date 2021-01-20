@@ -39,19 +39,20 @@ namespace Ser.Engine.Rest.Controllers
         /// <summary>
         /// Upload a file to the service with a fixed file id.
         /// </summary>
-        /// <param name="data">The file data to upload.</param>
         /// <param name="filename">The Name of the file</param>
         /// <param name="fileId">The file id for the created folder.</param>
-        /// <param name="unzip">Unpacking zip files after upload.</param>
+        /// <param name="unzip">Use zip files for unpacking after upload.</param>
         /// <response code="200">Returns the transfered file id.</response>
         [HttpPost]
         [Route("/upload/{fileId}")]
-        public IActionResult UploadWithId([FromBody][Required] Stream data, [FromRoute][Required] Guid fileId, [FromHeader][Required] string filename, [FromHeader] bool unzip = false)
+        [Consumes("application/octet-stream")]
+        [Produces("application/octet-stream")]
+        public IActionResult UploadWithId([FromRoute][Required] Guid fileId, [FromHeader][Required] string filename, [FromHeader] bool unzip = false)
         {
             try
             {
                 logger.Debug($"Start upload file with Id: '{fileId}'...");
-                var result = Service.Upload(fileId, data, filename, unzip);
+                var result = Service.Upload(fileId, Request.Body, filename, unzip);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -64,18 +65,19 @@ namespace Ser.Engine.Rest.Controllers
         /// <summary>
         /// Upload a file to the service.
         /// </summary>
-        /// <param name="data">The file data to upload.</param>
         /// <param name="filename">The Name of the file</param>
         /// <param name="unzip">Unpacking zip files after upload.</param>
         /// <response code="200">Returns a new generated file id.</response>
         [HttpPost]
         [Route("/upload")]
-        public IActionResult Upload([FromBody][Required] Stream data, [FromHeader][Required] string filename, [FromHeader] bool unzip = false)
+        [Consumes("application/octet-stream")]
+        [Produces("application/octet-stream")]
+        public IActionResult Upload([FromHeader][Required] string filename, [FromHeader] bool unzip = false)
         {
             try
             {
                 logger.Debug($"Start upload file...");
-                var result = Service.Upload(Guid.NewGuid(), data, filename, unzip);
+                var result = Service.Upload(Guid.NewGuid(), Request.Body, filename, unzip);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -99,7 +101,7 @@ namespace Ser.Engine.Rest.Controllers
             {
                 logger.Debug($"Start download - Id: '{folderId}' and Filename: '{filename}'...");
                 var fileData = Service.Download(folderId, filename);
-                logger.Trace($"Response file data with length with '{fileData.Length}'...");
+                logger.Trace($"Response file data with length with '{fileData?.Length}'...");
                 return File(fileData, "application/octet-stream", "download.zip");
             }
             catch (Exception ex)
