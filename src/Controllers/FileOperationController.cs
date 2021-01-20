@@ -21,7 +21,7 @@ namespace Ser.Engine.Rest.Controllers
         #endregion
 
         #region Properties
-        private FileHostingService Service { get; set; }
+        private IFileHostingService Service { get; set; }
         #endregion
 
         #region Constructor
@@ -29,16 +29,9 @@ namespace Ser.Engine.Rest.Controllers
         /// Construtor with configuration
         /// </summary>
         /// <param name="service">Reporting service</param>
-        public FileOperationsController(IHostedService service) 
+        public FileOperationsController(IFileHostingService service)
         {
-            if (service == null)
-                throw new Exception("The file hosting service was not initialized.");
-
-            if (service is FileHostingService fileHostingService)
-                Service = fileHostingService;
-
-            if (Service == null)
-                throw new Exception("The file hosting service was not initialized.");
+            Service = service ?? throw new Exception("The file hosting service was not initialized.");
         }
         #endregion
 

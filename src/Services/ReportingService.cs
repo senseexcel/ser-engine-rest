@@ -17,10 +17,46 @@
     using Ser.Engine.Rest.Model;
     #endregion
 
+    #region Interfaces
+    /// <summary>
+    /// Reproting service 
+    /// </summary>
+    public interface IReportingService
+    {
+        /// <summary>
+        /// Run Task(s)
+        /// </summary>
+        /// <param name="taskConfig">Job file as json</param>
+        /// <param name="taskId">Task id</param>
+        /// <returns>Return id of the task</returns>
+        public Guid RunTask(object taskConfig, Guid taskId);
+
+        /// <summary>
+        /// Get Status from Task(s)
+        /// </summary>
+        /// <param name="taskId">Task id</param>
+        /// <param name="taskStatus">Task status</param>
+        /// <returns>Return job results</returns>
+        public List<JobResult> GetTasks(Guid? taskId = null, TaskStatusInfo? taskStatus = null);
+
+        /// <summary>
+        /// Stop task(s)
+        /// </summary>
+        /// <param name="taskId">Task id</param>
+        public void StopTasks(Guid? taskId = null);
+
+        /// <summary>
+        /// Return the reporting service health.
+        /// </summary>
+        /// <returns>Reporting service health</returns>
+        public string HealthStatus();
+    }
+    #endregion
+
     /// <summary>
     /// Reporting service
     /// </summary>
-    public class ReportingService : IHostedService
+    public class ReportingService : IReportingService
     {
         #region Logger
         private readonly static Logger logger = LogManager.GetCurrentClassLogger();
@@ -103,28 +139,6 @@
                 manager.Value?.Stop();
             WorkingCount = 0;
             taskCounter.Inc(WorkingCount);
-        }
-        #endregion
-
-        #region HostingService Methods
-        /// <summary>
-        /// Initialize things
-        /// </summary>
-        /// <param name="cancellationToken">cancellation token</param>
-        /// <returns></returns>
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// dispose things
-        /// </summary>
-        /// <param name="cancellationToken">cancellation token</param>
-        /// <returns></returns>
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
         #endregion
 

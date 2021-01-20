@@ -12,10 +12,42 @@
     using System.Threading.Tasks;
     #endregion
 
+    #region Interfaces
+    /// <summary>
+    /// File hostring interface for controller
+    /// </summary>
+    public interface IFileHostingService
+    {
+        /// <summary>
+        /// Upload file
+        /// </summary>
+        /// <param name="fileId">File id</param>
+        /// <param name="fileStream">File stream</param>
+        /// <param name="filename">File name</param>
+        /// <param name="unzip">Is it a zip file.</param>
+        /// <returns>The id from the uploded file or folder</returns>
+        public Guid Upload(Guid fileId, Stream fileStream, string filename, bool unzip);
+
+        /// <summary>
+        /// Delete Folder(s)
+        /// </summary>
+        /// <param name="folderId">Id of the special directory</param>
+        public void Delete(Guid? folderId = null);
+
+        /// <summary>
+        /// Download File or Folder
+        /// </summary>
+        /// <param name="folderId">Id of the special directory from which a zip will be created.</param>
+        /// <param name="filename">Filename of the single file</param>
+        /// <returns>The data as byte array</returns>
+        public byte[] Download(Guid? folderId, string filename = null);
+    }
+    #endregion
+
     /// <summary>
     /// File hosting service
     /// </summary>
-    public class FileHostingService : IHostedService
+    public class FileHostingService : IFileHostingService
     {
         #region Logger
         private readonly static Logger logger = LogManager.GetCurrentClassLogger();
@@ -56,28 +88,6 @@
             {
                 throw new Exception("The stream could not convert to byte array.", ex);
             }
-        }
-        #endregion
-
-        #region HostedService Methods
-        /// <summary>
-        /// Initialize things
-        /// </summary>
-        /// <param name="cancellationToken">cancellation token</param>
-        /// <returns></returns>
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// dispose things
-        /// </summary>
-        /// <param name="cancellationToken">cancellation token</param>
-        /// <returns></returns>
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
         #endregion
 

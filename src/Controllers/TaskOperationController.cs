@@ -21,7 +21,7 @@ namespace Ser.Engine.Rest.Controllers
         #endregion
 
         #region Properties
-        private ReportingService Service { get; set; }
+        private IReportingService Service { get; set; }
         #endregion
 
         #region Constructor
@@ -29,16 +29,9 @@ namespace Ser.Engine.Rest.Controllers
         /// Controller for task operations
         /// </summary>
         /// <param name="service">Reporting service</param>
-        public TaskOperationsController(IHostedService service)
+        public TaskOperationsController(IReportingService service)
         {
-            if (service == null)
-                throw new Exception("The reporting service was not initialized.");
-
-            if (service is ReportingService reportingService)
-                Service = reportingService;
-
-            if (Service == null)
-                throw new Exception("The reporting service was not initialized.");
+            Service = service ?? throw new Exception("The reporting service was not initialized.");
         }
         #endregion
 
@@ -179,7 +172,7 @@ namespace Ser.Engine.Rest.Controllers
         }
 
         /// <summary>
-        /// Check if the task is still alive.
+        /// Checks if the reporting service is still responsive.
         /// </summary>
         /// <response code="200">Gets the health status from the task.</response>
         [HttpGet]

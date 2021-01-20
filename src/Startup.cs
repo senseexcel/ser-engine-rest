@@ -68,10 +68,10 @@ namespace Ser.Engine.Rest
                 var tempFolder = Path.Combine(AppContext.BaseDirectory, Configuration.GetValue<string>("contentRoot"));
                
                 var reportingOptions = new ReportingServiceOptions() {TempFolder = tempFolder };
-                services.AddSingleton<IHostedService, ReportingService>(s => new ReportingService(reportingOptions));
+                services.AddSingleton<IReportingService, ReportingService>(s => new ReportingService(reportingOptions));
                 
                 var fileHostingOptions = new FileHostingOptions() { TempFolder = tempFolder };
-                services.AddSingleton<IHostedService, FileHostingService>(s => new FileHostingService(fileHostingOptions));
+                services.AddSingleton<IFileHostingService, FileHostingService>(s => new FileHostingService(fileHostingOptions));
                 
                 services.AddControllers();
 
