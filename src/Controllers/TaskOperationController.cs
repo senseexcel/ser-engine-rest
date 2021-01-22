@@ -9,6 +9,7 @@ namespace Ser.Engine.Rest.Controllers
     using Ser.Api;
     using Microsoft.Extensions.Hosting;
     using Ser.Engine.Rest.Services;
+    using System.Collections.Generic;
     #endregion
 
     /// <summary>
@@ -44,6 +45,7 @@ namespace Ser.Engine.Rest.Controllers
         /// <response code="200">Returns a new generated task id.</response>
         [HttpPost]
         [Route("/task/{taskId}")]
+        [Produces("application/json", Type = typeof(Guid))]
         public IActionResult RunTasksWithId([FromBody][Required] object taskConfig, [FromRoute][Required] Guid taskId)
         {
             try
@@ -66,6 +68,7 @@ namespace Ser.Engine.Rest.Controllers
         /// <response code="200">Returns a new generated task id.</response>
         [HttpPost]
         [Route("/task")]
+        [Produces("application/json", Type = typeof(Guid))]
         public IActionResult RunTasks([FromBody][Required] object taskConfig)
         {
             try
@@ -131,6 +134,7 @@ namespace Ser.Engine.Rest.Controllers
         /// <response code="200">Gets the result from the current Task.</response>
         [HttpGet]
         [Route("/task/{taskId}")]
+        [Produces("application/json", Type = typeof(List<JobResult>))]
         public IActionResult TaskWithId([FromRoute][Required] Guid taskId)
         {
             try
@@ -153,6 +157,7 @@ namespace Ser.Engine.Rest.Controllers
         /// <response code="200">Gets the results from all Tasks.</response>
         [HttpGet]
         [Route("/task")]
+        [Produces("application/json", Type = typeof(List<JobResult>))]
         public IActionResult Tasks([FromHeader] string taskStatus)
         {
             try
@@ -177,6 +182,7 @@ namespace Ser.Engine.Rest.Controllers
         /// <response code="200">Gets the health status from the task.</response>
         [HttpGet]
         [Route("/health")]
+        [Produces("text/plain", Type = typeof(string))]
         public IActionResult HealthStatus()
         {
             try

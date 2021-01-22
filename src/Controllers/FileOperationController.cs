@@ -46,7 +46,7 @@ namespace Ser.Engine.Rest.Controllers
         [HttpPost]
         [Route("/upload/{fileId}")]
         [Consumes("application/octet-stream")]
-        [Produces("application/octet-stream")]
+        [Produces("application/json", Type = typeof(Guid))]
         public IActionResult UploadWithId([FromRoute][Required] Guid fileId, [FromHeader][Required] string filename, [FromHeader] bool unzip = false)
         {
             try
@@ -71,7 +71,7 @@ namespace Ser.Engine.Rest.Controllers
         [HttpPost]
         [Route("/upload")]
         [Consumes("application/octet-stream")]
-        [Produces("application/octet-stream")]
+        [Produces("application/json", Type = typeof(Guid))]
         public IActionResult Upload([FromHeader][Required] string filename, [FromHeader] bool unzip = false)
         {
             try
@@ -95,6 +95,7 @@ namespace Ser.Engine.Rest.Controllers
         /// <response code="200">Returns the file from id.</response>
         [HttpGet]
         [Route("/download/{folderId}")]
+        [Produces("application/octet-stream", Type = typeof(File))]
         public IActionResult Download([FromRoute][Required] Guid folderId, [FromHeader] string filename)
         {
             try

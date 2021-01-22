@@ -27,9 +27,13 @@
 
   <ItemGroup>
     <Compile Remove="Working\**" />
+    <Compile Remove="wwwroot\**" />
     <Content Remove="Working\**" />
+    <Content Remove="wwwroot\**" />
     <EmbeddedResource Remove="Working\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
     <None Remove="Working\**" />
+    <None Remove="wwwroot\**" />
   </ItemGroup>
 
   <ItemGroup>
