@@ -8,6 +8,8 @@ namespace Ser.Engine.Rest.Controllers
     using NLog;
     using System.IO;
     using Ser.Engine.Rest.Services;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.WebUtilities;
     #endregion
 
     /// <summary>
@@ -36,52 +38,56 @@ namespace Ser.Engine.Rest.Controllers
 
         #region Public Methods
         /// <summary>
-        /// Upload a file to the service with a fixed file id.
-        /// </summary>
-        /// <param name="filename">The Name of the file</param>
-        /// <param name="fileId">The file id for the created folder.</param>
-        /// <param name="unzip">Use zip files for unpacking after upload.</param>
-        /// <response code="200">Returns the transfered file id.</response>
-        [HttpPost]
-        [Route("/upload/{fileId}")]
-        [Consumes("application/octet-stream")]
-        [Produces("application/json", Type = typeof(Guid))]
-        public IActionResult UploadWithId([FromRoute][Required] Guid fileId, [FromHeader][Required] string filename, [FromHeader] bool unzip = false)
-        {
-            try
-            {
-                logger.Debug($"Start upload file with Id: '{fileId}'...");
-                var result = Service.Upload(fileId, Request.Body, filename, unzip);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, $"The request method '{nameof(UploadWithId)}' failed.");
-                return BadRequest(ex.Message);
-            }
-        }
-
-        /// <summary>
         /// Upload a file to the service.
         /// </summary>
-        /// <param name="filename">The Name of the file</param>
-        /// <param name="unzip">Unpacking zip files after upload.</param>
+        /// <param name="file">The uploaded file (max. 250 MB)</param>
+        /// <param name="filename">Individual file name</param>
         /// <response code="200">Returns a new generated file id.</response>
         [HttpPost]
         [Route("/upload")]
-        [Consumes("application/octet-stream")]
+        [Consumes("multipart/form-data")]
         [Produces("application/json", Type = typeof(Guid))]
-        public IActionResult Upload([FromHeader][Required] string filename, [FromHeader] bool unzip = false)
+        [RequestFormLimits(MultipartBodyLengthLimit = 262144000)]
+        [RequestSizeLimit(262144000)]
+        public IActionResult Upload(IFormFile file, [FromHeader] string filename)
         {
             try
             {
                 logger.Debug($"Start upload file...");
-                var result = Service.Upload(Guid.NewGuid(), Request.Body, filename, unzip);
+                var result = Service.Upload(Guid.NewGuid(), file, filename);
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 logger.Error(ex, $"The request method '{nameof(Upload)}' failed.");
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Upload a file to the service with a fixed file id.
+        /// </summary>
+        /// <param name="file">The uploaded file (max. 250 MB)</param>
+        /// <param name="fileId">The file id for the created folder.</param>
+        /// <param name="filename">Individual file name</param>
+        /// <response code="200">Returns the transfered file id.</response>
+        [HttpPost]
+        [Route("/upload/{fileId}")]
+        [Consumes("multipart/form-data")]
+        [Produces("application/json", Type = typeof(Guid))]
+        [RequestFormLimits(MultipartBodyLengthLimit = 262144000)]
+        [RequestSizeLimit(262144000)]
+        public IActionResult UploadWithId(IFormFile file, [FromRoute][Required] Guid fileId, [FromHeader] string filename)
+        {
+            try
+            {
+                logger.Debug($"Start upload file with Id: '{fileId}'...");
+                var result = Service.Upload(fileId, file, filename);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"The request method '{nameof(UploadWithId)}' failed.");
                 return BadRequest(ex.Message);
             }
         }

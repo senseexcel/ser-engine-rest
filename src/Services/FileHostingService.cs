@@ -1,5 +1,6 @@
 ﻿namespace Ser.Engine.Rest.Services
 {
+    using Microsoft.AspNetCore.Http;
     #region Usings
     using NLog;
     using Ser.Engine.Rest.Model;
@@ -21,10 +22,9 @@
         /// </summary>
         /// <param name="fileId">File id</param>
         /// <param name="fileStream">File stream</param>
-        /// <param name="filename">File name</param>
-        /// <param name="unzip">Is it a zip file.</param>
+        /// <param name="fileName">Individual file name</param>
         /// <returns>The id from the uploded file or folder</returns>
-        public Guid Upload(Guid fileId, Stream fileStream, string filename, bool unzip);
+        public Guid Upload(Guid fileId, IFormFile fileStream, string fileName = null);
 
         /// <summary>
         /// Delete Folder(s)
@@ -71,12 +71,16 @@
         #endregion
 
         #region Private Methods
-        private static byte[] GetBytesFromStream(Stream stream)
+        private static byte[] GetBytesFromStream(IFormFile file)
         {
             try
             {
-                using var ms = new MemoryStream(2048);
-                stream.CopyToAsync(ms);
+                if (file == null)
+                    throw new Exception("The uploaded file is null.");
+
+                var fileLength = Convert.ToInt32(file.Length);
+                using var ms = new MemoryStream(fileLength);
+                file.CopyTo(ms);
                 return ms.ToArray();
             }
             catch (Exception ex)
@@ -91,33 +95,42 @@
         /// Write uploaded file to folder
         /// </summary>
         /// <param name="fileId">Name of the file</param>
-        /// <param name="fileStream">File as stream</param>
-        /// <param name="filename">Id of the folder</param>
-        /// <param name="unzip">unzip zip files</param>
-        public Guid Upload(Guid fileId, Stream fileStream, string filename, bool unzip)
+        /// <param name="file">File from upload</param>
+        /// <param name="filename">Individual file name</param>
+        public Guid Upload(Guid fileId, IFormFile file, string filename = null)
         {
-            logger.Debug($"Upload file with the following parameters: ID='{fileId}' Name='{filename}' Unzip='{unzip}'...");
-            var fileData = GetBytesFromStream(fileStream);
-            Task.Run(() =>
+            try
             {
-                try
+                logger.Debug($"Upload file with the following parameters: ID='{fileId}' Name='{file?.Name}'...");
+                var fileData = GetBytesFromStream(file);
+                Task.Run(() =>
                 {
-                    var uploadFolder = Path.Combine(Options.TempFolder, fileId.ToString());
-                    Directory.CreateDirectory(uploadFolder);
-                    var fullname = Path.Combine(uploadFolder, filename);
-                    File.WriteAllBytes(fullname, fileData);
-                    if (unzip)
+                    try
                     {
-                        logger.Debug($"Unzip uploaded file '{fullname}'...");
-                        ZipFile.ExtractToDirectory(fullname, uploadFolder, true);
+                        var uploadFolder = Path.Combine(Options.TempFolder, fileId.ToString());
+                        Directory.CreateDirectory(uploadFolder);
+                        var uploadfilename = file?.FileName;
+                        if (!String.IsNullOrEmpty(filename))
+                            uploadfilename = filename;
+                        var fullname = Path.Combine(uploadFolder, uploadfilename);
+                        File.WriteAllBytes(fullname, fileData);
+                        if (Path.GetExtension(file.FileName) == ".zip")
+                        {
+                            logger.Debug($"Unzip uploaded file '{fullname}'...");
+                            ZipFile.ExtractToDirectory(fullname, uploadFolder, true);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, $"Upload file with id '{fileId}' failed.");
-                }
-            });
-            return fileId;
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, $"Upload file with id '{fileId}' failed.");
+                    }
+                });
+                return fileId;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("The file upload could not be initialized.", ex);
+            }
         }
 
         /// <summary>
