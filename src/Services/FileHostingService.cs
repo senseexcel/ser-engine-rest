@@ -103,15 +103,15 @@
             {
                 logger.Debug($"Upload file with the following parameters: ID='{fileId}' Name='{file?.Name}'...");
                 var fileData = GetBytesFromStream(file);
+                var uploadfilename = file?.FileName;
+                if (!String.IsNullOrEmpty(filename))
+                    uploadfilename = filename;
                 Task.Run(() =>
                 {
                     try
                     {
                         var uploadFolder = Path.Combine(Options.TempFolder, fileId.ToString());
                         Directory.CreateDirectory(uploadFolder);
-                        var uploadfilename = file?.FileName;
-                        if (!String.IsNullOrEmpty(filename))
-                            uploadfilename = filename;
                         var fullname = Path.Combine(uploadFolder, uploadfilename);
                         File.WriteAllBytes(fullname, fileData);
                         if (Path.GetExtension(file.FileName) == ".zip")

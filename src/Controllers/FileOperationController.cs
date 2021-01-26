@@ -10,6 +10,7 @@ namespace Ser.Engine.Rest.Controllers
     using Ser.Engine.Rest.Services;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.WebUtilities;
+    using System.Net.Http.Headers;
     #endregion
 
     /// <summary>
@@ -100,7 +101,7 @@ namespace Ser.Engine.Rest.Controllers
         /// <response code="200">Returns the file from id.</response>
         [HttpGet]
         [Route("/download/{folderId}")]
-        [Produces("application/octet-stream", Type = typeof(File))]
+        [Produces("application/octet-stream", Type = typeof(FileContentResult))]
         public IActionResult Download([FromRoute][Required] Guid folderId, [FromHeader] string filename)
         {
             try
@@ -108,7 +109,10 @@ namespace Ser.Engine.Rest.Controllers
                 logger.Debug($"Start download - Id: '{folderId}' and Filename: '{filename}'...");
                 var fileData = Service.Download(folderId, filename);
                 logger.Trace($"Response file data with length with '{fileData?.Length}'...");
-                return File(fileData, "application/octet-stream", "download.zip");
+                return new FileContentResult(fileData, "application/octet-stream")
+                {
+                     FileDownloadName = "download.zip"
+                };
             }
             catch (Exception ex)
             {
