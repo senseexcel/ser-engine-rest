@@ -7,7 +7,6 @@ namespace Ser.Engine.Rest.Controllers
     using System.ComponentModel.DataAnnotations;
     using NLog;
     using System.IO;
-    using Microsoft.Extensions.Hosting;
     using Ser.Engine.Rest.Services;
     #endregion
 

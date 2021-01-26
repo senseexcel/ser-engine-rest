@@ -7,7 +7,6 @@ namespace Ser.Engine.Rest.Controllers
     using System.ComponentModel.DataAnnotations;
     using NLog;
     using Ser.Api;
-    using Microsoft.Extensions.Hosting;
     using Ser.Engine.Rest.Services;
     using System.Collections.Generic;
     #endregion
@@ -15,7 +14,7 @@ namespace Ser.Engine.Rest.Controllers
     /// <summary>
     /// Task Operations
     /// </summary>
-    public class TaskOperationsController : Controller
+    public class ReportingOperationsController : Controller
     {
         #region Logger
         private readonly static Logger logger = LogManager.GetCurrentClassLogger();
@@ -30,7 +29,7 @@ namespace Ser.Engine.Rest.Controllers
         /// Controller for task operations
         /// </summary>
         /// <param name="service">Reporting service</param>
-        public TaskOperationsController(IReportingService service)
+        public ReportingOperationsController(IReportingService service)
         {
             Service = service ?? throw new Exception("The reporting service was not initialized.");
         }

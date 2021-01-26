@@ -1,14 +1,12 @@
 ﻿namespace Ser.Engine.Rest.Services
 {
     #region Usings
-    using Microsoft.Extensions.Hosting;
     using NLog;
     using Ser.Engine.Rest.Model;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
-    using System.Threading;
     using System.Threading.Tasks;
     #endregion
 
