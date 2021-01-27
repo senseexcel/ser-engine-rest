@@ -66,6 +66,7 @@ namespace Ser.Engine.Rest
                 }
 
                 var tempFolder = Path.Combine(Configuration.GetValue<string>(WebHostDefaults.ContentRootKey), "wwwroot");
+                Directory.CreateDirectory(tempFolder);
 
                 var reportingOptions = new ReportingServiceOptions() {TempFolder = tempFolder };
                 services.AddSingleton<IReportingService, ReportingService>(s => new ReportingService(reportingOptions));
