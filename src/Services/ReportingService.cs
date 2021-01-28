@@ -24,10 +24,10 @@
         /// <summary>
         /// Run Task(s)
         /// </summary>
-        /// <param name="taskConfig">Job file as json</param>
+        /// <param name="taskConfig">Job file json as string</param>
         /// <param name="taskId">Task id</param>
         /// <returns>Return id of the task</returns>
-        public Guid RunTask(object taskConfig, Guid taskId);
+        public Guid RunTask(string taskConfig, Guid taskId);
 
         /// <summary>
         /// Get Status from Task(s)
@@ -144,9 +144,9 @@
         /// <summary>
         /// Start a new reporting task.
         /// </summary>
-        /// <param name="taskConfig">json job content</param>
+        /// <param name="taskConfig">Job file json as string</param>
         /// <param name="taskId">Id of the task</param>
-        public Guid RunTask(object taskConfig, Guid taskId)
+        public Guid RunTask(string taskConfig, Guid taskId)
         {
             WorkingCount++;
             taskCounter.Inc(WorkingCount);
@@ -157,7 +157,7 @@
                     logger.Debug($"START - {taskId}");
                     var taskFolder = Path.Combine(Options.TempFolder, taskId.ToString());
                     Directory.CreateDirectory(taskFolder);
-                    var jObject = JObject.FromObject(taskConfig) as dynamic;
+                    var jObject = JObject.Parse(taskConfig) as dynamic;
                     JArray guidArray = jObject?.uploadGuids ?? null;
                     if (guidArray != null)
                     {

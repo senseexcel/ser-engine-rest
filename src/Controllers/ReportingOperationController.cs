@@ -50,7 +50,7 @@ namespace Ser.Engine.Rest.Controllers
             try
             {
                 logger.Debug($"Create task with Json '{taskConfig?.ToString()}'...");
-                var result = Service.RunTask(taskConfig, taskId);
+                var result = Service.RunTask(taskConfig.ToString(), taskId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -73,7 +73,7 @@ namespace Ser.Engine.Rest.Controllers
             try
             {
                 logger.Debug($"Create task with Json '{taskConfig?.ToString()}'...");
-                var result = Service.RunTask(taskConfig, Guid.NewGuid());
+                var result = Service.RunTask(taskConfig.ToString(), Guid.NewGuid());
                 return Ok(result);
             }
             catch (Exception ex)
