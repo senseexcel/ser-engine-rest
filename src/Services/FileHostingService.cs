@@ -22,9 +22,8 @@
         /// </summary>
         /// <param name="fileId">File id</param>
         /// <param name="fileStream">File stream</param>
-        /// <param name="fileName">Individual file name</param>
         /// <returns>The id from the uploded file or folder</returns>
-        public Guid Upload(Guid fileId, IFormFile fileStream, string fileName = null);
+        public Guid Upload(Guid fileId, IFormFile fileStream);
 
         /// <summary>
         /// Delete Folder(s)
@@ -96,16 +95,13 @@
         /// </summary>
         /// <param name="fileId">Name of the file</param>
         /// <param name="file">File from upload</param>
-        /// <param name="filename">Individual file name</param>
-        public Guid Upload(Guid fileId, IFormFile file, string filename = null)
+        public Guid Upload(Guid fileId, IFormFile file)
         {
             try
             {
                 logger.Debug($"Upload file with the following parameters: ID='{fileId}' Name='{file?.Name}'...");
                 var fileData = GetBytesFromStream(file);
                 var uploadfilename = file?.FileName;
-                if (!String.IsNullOrEmpty(filename))
-                    uploadfilename = filename;
                 Task.Run(() =>
                 {
                     try

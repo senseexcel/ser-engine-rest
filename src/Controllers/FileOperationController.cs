@@ -42,7 +42,6 @@ namespace Ser.Engine.Rest.Controllers
         /// Upload a file to the service.
         /// </summary>
         /// <param name="file">The uploaded file (max. 250 MB)</param>
-        /// <param name="filename">Individual file name</param>
         /// <response code="200">Returns a new generated file id.</response>
         [HttpPost]
         [Route("/upload")]
@@ -50,12 +49,12 @@ namespace Ser.Engine.Rest.Controllers
         [Produces("application/json", Type = typeof(Guid))]
         [RequestFormLimits(MultipartBodyLengthLimit = 262144000)]
         [RequestSizeLimit(262144000)]
-        public IActionResult Upload(IFormFile file, [FromHeader] string filename)
+        public IActionResult Upload(IFormFile file)
         {
             try
             {
                 logger.Debug($"Start upload file...");
-                var result = Service.Upload(Guid.NewGuid(), file, filename);
+                var result = Service.Upload(Guid.NewGuid(), file);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -70,7 +69,6 @@ namespace Ser.Engine.Rest.Controllers
         /// </summary>
         /// <param name="file">The uploaded file (max. 250 MB)</param>
         /// <param name="fileId">The file id for the created folder.</param>
-        /// <param name="filename">Individual file name</param>
         /// <response code="200">Returns the transfered file id.</response>
         [HttpPost]
         [Route("/upload/{fileId}")]
@@ -78,12 +76,12 @@ namespace Ser.Engine.Rest.Controllers
         [Produces("application/json", Type = typeof(Guid))]
         [RequestFormLimits(MultipartBodyLengthLimit = 262144000)]
         [RequestSizeLimit(262144000)]
-        public IActionResult UploadWithId(IFormFile file, [FromRoute][Required] Guid fileId, [FromHeader] string filename)
+        public IActionResult UploadWithId(IFormFile file, [FromRoute][Required] Guid fileId)
         {
             try
             {
                 logger.Debug($"Start upload file with Id: '{fileId}'...");
-                var result = Service.Upload(fileId, file, filename);
+                var result = Service.Upload(fileId, file);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -102,12 +100,12 @@ namespace Ser.Engine.Rest.Controllers
         [HttpGet]
         [Route("/download/{folderId}")]
         [Produces("application/octet-stream", Type = typeof(FileContentResult))]
-        public IActionResult Download([FromRoute][Required] Guid folderId, [FromHeader] string filename)
+        public IActionResult Download([FromRoute][Required] Guid folderId, [FromQuery] string filename)
         {
             try
             {
                 logger.Debug($"Start download - Id: '{folderId}' and Filename: '{filename}'...");
-                var fileData = Service.Download(folderId, filename);
+                var fileData = Service.Download(folderId, Uri.UnescapeDataString(filename));
                 logger.Trace($"Response file data with length with '{fileData?.Length}'...");
                 return new FileContentResult(fileData, "application/octet-stream")
                 {

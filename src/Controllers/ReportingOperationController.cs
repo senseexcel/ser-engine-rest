@@ -157,14 +157,14 @@ namespace Ser.Engine.Rest.Controllers
         [HttpGet]
         [Route("/task")]
         [Produces("application/json", Type = typeof(List<JobResult>))]
-        public IActionResult Tasks([FromHeader] string taskStatus)
+        public IActionResult Tasks([FromQuery] string taskStatus)
         {
             try
             {
                 logger.Trace($"Start get all task.");
                 TaskStatusInfo? taskStatusInfo = null;
                 if (!String.IsNullOrEmpty(taskStatus))
-                    taskStatusInfo = (TaskStatusInfo)Enum.Parse(typeof(TaskStatusInfo), taskStatus, true);
+                    taskStatusInfo = (TaskStatusInfo)Enum.Parse(typeof(TaskStatusInfo), Uri.UnescapeDataString(taskStatus), true);
                 var result = Service.GetTasks(null, taskStatusInfo);
                 return Ok(result);
             }
