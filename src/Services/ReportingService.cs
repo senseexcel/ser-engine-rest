@@ -7,6 +7,7 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using NLog;
     using Prometheus;
@@ -34,8 +35,8 @@
         /// </summary>
         /// <param name="taskId">Task id</param>
         /// <param name="taskStatus">Task status</param>
-        /// <returns>Return job results</returns>
-        public List<JobResult> GetTasks(Guid? taskId = null, TaskStatusInfo? taskStatus = null);
+        /// <returns>Return a serialize json string</returns>
+        public string GetTasks(Guid? taskId = null, TaskStatusInfo? taskStatus = null);
 
         /// <summary>
         /// Stop task(s)
@@ -191,8 +192,8 @@
         /// </summary>
         /// <param name="taskId">Id of the task</param>
         /// <param name="taskStatus">Select a special status</param>
-        /// <returns></returns>
-        public List<JobResult> GetTasks(Guid? taskId = null, TaskStatusInfo? taskStatus = null)
+        /// <returns>Return a serialize json string</returns>
+        public string GetTasks(Guid? taskId = null, TaskStatusInfo? taskStatus = null)
         {
             var results = new List<JobResult>();
 
@@ -219,12 +220,12 @@
                     else
                         results.AddRange(ReportingTask.GetAllResultsFromJob(para));
                 }
-                return results;
+                return JsonConvert.SerializeObject(results);
             }
             catch (Exception ex)
             {
                 logger.Error(ex, "The task result could not found.");
-                return results;
+                return JsonConvert.SerializeObject(results);
             }
         }
 

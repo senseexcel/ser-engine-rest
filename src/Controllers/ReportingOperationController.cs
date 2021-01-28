@@ -133,7 +133,7 @@ namespace Ser.Engine.Rest.Controllers
         /// <response code="200">Gets the result from the current Task.</response>
         [HttpGet]
         [Route("/task/{taskId}")]
-        [Produces("application/json", Type = typeof(List<JobResult>))]
+        [Produces("application/json", Type = typeof(string))]
         public IActionResult TaskWithId([FromRoute][Required] Guid taskId)
         {
             try
