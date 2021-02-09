@@ -30,7 +30,7 @@
             try
             {
                 //Activate Nlog logger with configuration
-                logger = NLogBuilder.ConfigureNLog("app.config").GetCurrentClassLogger();
+                logger = NLogBuilder.ConfigureNLog("App.config").GetCurrentClassLogger();
 
                 //Build config for webserver
                 var config = new ConfigurationBuilder()

@@ -58,7 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="app.config">
+    <Content Update="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
