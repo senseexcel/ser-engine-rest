@@ -105,11 +105,13 @@ namespace Ser.Engine.Rest.Controllers
             try
             {
                 logger.Debug($"Start download - Id: '{folderId}' and Filename: '{filename}'...");
+                if (String.IsNullOrEmpty(filename))
+                    filename = "download.zip";
                 var fileData = Service.Download(folderId, Uri.UnescapeDataString(filename));
                 logger.Trace($"Response file data with length with '{fileData?.Length}'...");
                 return new FileContentResult(fileData, "application/octet-stream")
                 {
-                     FileDownloadName = "download.zip"
+                    FileDownloadName = filename
                 };
             }
             catch (Exception ex)
