@@ -20,35 +20,34 @@
         private static Logger logger = LogManager.GetCurrentClassLogger();
         #endregion
 
-        #region Main Method
+        #region Public Methods
         /// <summary>
-        /// Main Method
+        /// Main entry method
         /// </summary>
-        /// <param name="args">Argumente</param>
+        /// <param name="args">Arguments</param>
         public static void Main(string[] args)
         {
             try
             {
                 //Activate Nlog logger with configuration
-                var logger = NLogBuilder.ConfigureNLog("App.config").GetCurrentClassLogger();
+                logger = NLogBuilder.ConfigureNLog("App.config").GetCurrentClassLogger();
 
                 //Build config for webserver
                 var config = new ConfigurationBuilder()
                     .SetBasePath(AppContext.BaseDirectory)
-                    .AddJsonFile("hosting.json", optional: true)
                     .AddEnvironmentVariables()
                     .AddCommandLine(args)
                     .Build();
-                var contentRoot = config?.GetValue<string>("contentRoot") ?? "wwwroot";
-                if (!contentRoot.Contains(":") && !contentRoot.StartsWith("/") && !contentRoot.StartsWith("\\"))
-                    contentRoot = Path.Combine(AppContext.BaseDirectory, contentRoot);
-                Directory.CreateDirectory(contentRoot);
 
                 //Start the web server
-                CreateWebHostBuilder(args)
+                CreateHostBuilder(args)
                     .UseKestrel()
-                    .UseContentRoot(contentRoot)
+                    .ConfigureAppConfiguration((builderContext, config) =>
+                    {
+                        config.AddJsonFile("appsettings.json", optional: false);
+                    })
                     .UseConfiguration(config)
+                    .UseContentRoot(Directory.GetCurrentDirectory())
                     .ConfigureLogging(logging =>
                     {
                         logging.ClearProviders();
@@ -60,7 +59,7 @@
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Webserver has fatal error.");
+                logger.Error(ex, "AG Rest Service has fatal error.");
             }
             finally
             {
@@ -69,11 +68,11 @@
         }
 
         /// <summary>
-        /// Start WebServer
+        /// Create a new web host builder
         /// </summary>
-        /// <param name="args">Argumente</param>
-        /// <returns></returns>
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+        /// <param name="args">Arguments</param>
+        /// <returns>WebHostBuilder instance</returns>
+        public static IWebHostBuilder CreateHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
         #endregion
