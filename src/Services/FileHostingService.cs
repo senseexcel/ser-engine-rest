@@ -1,6 +1,5 @@
 ﻿namespace Ser.Engine.Rest.Services
 {
-    using Microsoft.AspNetCore.Http;
     #region Usings
     using NLog;
     using Ser.Engine.Rest.Model;
@@ -9,6 +8,7 @@
     using System.IO;
     using System.IO.Compression;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
     #endregion
 
     #region Interfaces
