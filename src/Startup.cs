@@ -68,12 +68,12 @@ namespace Ser.Engine.Rest
                 var tempFolder = Configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
                 Directory.CreateDirectory(tempFolder);
 
-                var reportingOptions = new ReportingServiceOptions() {TempFolder = tempFolder };
+                var reportingOptions = new ReportingServiceOptions() { TempFolder = tempFolder };
                 services.AddSingleton<IReportingService, ReportingService>(s => new ReportingService(reportingOptions));
-                
+
                 var fileHostingOptions = new FileHostingOptions() { TempFolder = tempFolder };
                 services.AddSingleton<IFileHostingService, FileHostingService>(s => new FileHostingService(fileHostingOptions));
-                
+
                 services.AddControllers();
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
