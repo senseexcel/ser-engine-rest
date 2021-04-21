@@ -9,6 +9,8 @@
     <RootNamespace>Ser.Engine.Rest</RootNamespace>
     <PackageId>Ser.Engine.Rest</PackageId>
     <AssemblyName>SerEngineRest</AssemblyName>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IsPackable>true</IsPackable>
     <AssemblyVersion>5.1.2.0</AssemblyVersion>
     <FileVersion>5.1.2.0</FileVersion>
   </PropertyGroup>
@@ -70,7 +72,9 @@
         </Reference>
         <Reference Include="Ser.Engine">
           <HintPath>..\..\ser-engine\src\bin\Release\$(TargetFramework)\ser-engine.dll</HintPath>
-          <EmbedInteropTypes></EmbedInteropTypes>
+        </Reference>
+        <Reference Include="enigma.net">
+          <HintPath>..\..\..\QlikAPIs\enigma.net\src\bin\Release\$(TargetFramework)\enigma.net.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>
@@ -81,7 +85,9 @@
         </Reference>
         <Reference Include="Ser.Engine">
           <HintPath>..\..\ser-engine\src\bin\Debug\$(TargetFramework)\ser-engine.dll</HintPath>
-          <EmbedInteropTypes></EmbedInteropTypes>
+        </Reference>
+        <Reference Include="enigma.net">
+          <HintPath>..\..\..\QlikAPIs\enigma.net\src\bin\Debug\$(TargetFramework)\enigma.net.dll</HintPath>
         </Reference>
       </ItemGroup>
     </Otherwise>
