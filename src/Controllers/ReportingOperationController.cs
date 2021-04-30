@@ -94,7 +94,7 @@ namespace Ser.Engine.Rest.Controllers
         {
             try
             {
-                logger.Trace($"Start delete task - Id: {taskId}");
+                logger.Trace($"Stop task with id '{taskId}'...");
                 Service.StopTasks(taskId);
                 return Ok();
             }
@@ -115,7 +115,7 @@ namespace Ser.Engine.Rest.Controllers
         {
             try
             {
-                logger.Trace($"Start stop all task");
+                logger.Trace($"Stop all tasks...");
                 Service.StopTasks();
                 return Ok();
             }
@@ -127,50 +127,46 @@ namespace Ser.Engine.Rest.Controllers
         }
 
         /// <summary>
-        /// Gets the result from the current Task.
+        /// Gets all task status.
         /// </summary>
-        /// <param name="taskId">The task id from which I want to get the result.</param>
         /// <response code="200">Gets the result from the current Task.</response>
         [HttpGet]
-        [Route("/task/{taskId}")]
+        [Route("/status/all")]
         [Produces("application/json", Type = typeof(string))]
-        public IActionResult TaskWithId([FromRoute][Required] Guid taskId)
+        public IActionResult AllStatus()
         {
             try
             {
-                logger.Trace($"Start get task - Id: {taskId}");
-                var result = Service.GetTasks(taskId);
-                return Ok(result);
+                logger.Trace($"Get all status...");
+                var results = Service.GetAllTaskStatus();
+                return Ok(results);
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"The request method '{nameof(TaskWithId)}' failed.");
+                logger.Error(ex, $"The request method '{nameof(StatusWithId)}' failed.");
                 return BadRequest(ex.Message);
             }
         }
 
         /// <summary>
-        /// Gets the results from all Tasks.
+        /// Gets the result from the current Task.
         /// </summary>
-        /// <param name="taskStatus">Get all tasks with this status.</param>
-        /// <response code="200">Gets the results from all Tasks.</response>
+        /// <param name="taskId">The task id from which I want to get the result.</param>
+        /// <response code="200">Gets the result from the current Task.</response>
         [HttpGet]
-        [Route("/task")]
-        [Produces("application/json", Type = typeof(List<JobResult>))]
-        public IActionResult Tasks([FromQuery] string taskStatus)
+        [Route("/status/{taskId}")]
+        [Produces("application/json", Type = typeof(string))]
+        public IActionResult StatusWithId([FromRoute][Required] Guid taskId)
         {
             try
             {
-                logger.Trace($"Start get all task.");
-                TaskStatusInfo? taskStatusInfo = null;
-                if (!String.IsNullOrEmpty(taskStatus))
-                    taskStatusInfo = (TaskStatusInfo)Enum.Parse(typeof(TaskStatusInfo), Uri.UnescapeDataString(taskStatus), true);
-                var result = Service.GetTasks(null, taskStatusInfo);
+                logger.Trace($"Start get task - Id: {taskId}");
+                var result = Service.GetTaskStatus(taskId);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"The request method '{nameof(Tasks)}' failed.");
+                logger.Error(ex, $"The request method '{nameof(StatusWithId)}' failed.");
                 return BadRequest(ex.Message);
             }
         }

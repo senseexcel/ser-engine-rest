@@ -50,7 +50,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.1.3" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" /> 
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -65,34 +65,20 @@
     </None>
   </ItemGroup>
 
-  <Choose>
-    <When Condition="'$(Configuration)' == 'Release'">
-      <ItemGroup>
-        <Reference Include="Ser.Api">
-          <HintPath>..\..\ser-api\src\bin\Release\$(TargetFramework)\SerApi.dll</HintPath>
-        </Reference>
-        <Reference Include="Ser.Engine">
-          <HintPath>..\..\ser-engine\src\bin\Release\$(TargetFramework)\ser-engine.dll</HintPath>
-        </Reference>
-        <Reference Include="enigma.net">
-          <HintPath>..\..\..\QlikAPIs\enigma.net\src\bin\Release\$(TargetFramework)\enigma.net.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="Ser.Api">
-          <HintPath>..\..\ser-api\src\bin\Debug\$(TargetFramework)\SerApi.dll</HintPath>
-        </Reference>
-        <Reference Include="Ser.Engine">
-          <HintPath>..\..\ser-engine\src\bin\Debug\$(TargetFramework)\ser-engine.dll</HintPath>
-        </Reference>
-        <Reference Include="enigma.net">
-          <HintPath>..\..\..\QlikAPIs\enigma.net\src\bin\Debug\$(TargetFramework)\enigma.net.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+  <ItemGroup>
+    <Reference Include="Ser.Api">
+      <HintPath>..\..\ser-api\src\bin\$(Configuration)\$(TargetFramework)\SerApi.dll</HintPath>
+    </Reference>
+    <Reference Include="Ser.Engine">
+      <HintPath>..\..\ser-engine\src\bin\$(Configuration)\$(TargetFramework)\ser-engine.dll</HintPath>
+    </Reference>
+    <Reference Include="enigma.net">
+      <HintPath>..\..\..\QlikAPIs\enigma.net\src\bin\$(Configuration)\$(TargetFramework)\enigma.net.dll</HintPath>
+    </Reference>
+    <Reference Include="SerDistribute">
+      <HintPath>..\..\ser-distribute\src\bin\$(Configuration)\$(TargetFramework)\SerDistribute.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
   <Target Name="ShowAssemblyVersion" BeforeTargets="AfterBuild">
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
