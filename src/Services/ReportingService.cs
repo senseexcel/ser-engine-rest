@@ -164,6 +164,8 @@
         {
             Task.Run(() =>
             {
+                var restTask = new RestTask();
+
                 try
                 {
                     logger.Debug($"Start rest task with id {taskId}...");
@@ -171,7 +173,8 @@
                     taskCounter.Inc(WorkingCount);
                     var restStatus = new RestTaskStatus() { Status = 1, ProcessMessage = "Report job will be started...." };
                     var tokenSource = new CancellationTokenSource();
-                    taskPool.TryAdd(taskId, new RestTask() { TokenSource = tokenSource, TaskStatus = restStatus, StartTime = DateTime.Now });
+                    restTask = new RestTask() { TokenSource = tokenSource, TaskStatus = restStatus, StartTime = DateTime.Now };
+                    taskPool.TryAdd(taskId, restTask);
 
                     restStatus.Status = 1;
                     restStatus.ProcessMessage = "Report job is running...";
@@ -199,20 +202,20 @@
                     if (distResult != null)
                     {
                         logger.Debug($"Distribute result: '{distResult}'");
-                        logger.Debug("The delivery was successfully.");
-                        restStatus.ProcessMessage = "Report job was successful finish";
                         restStatus.DistributeResult = distResult;
-                        restStatus.JobResultJson = JsonConvert.SerializeObject(GetResults(taskId));
+                        restStatus.JsonJobResults = JsonConvert.SerializeObject(GetResults(taskId));
                         restStatus.Status = 3;
                     }
                     else
                     {
-                        logger.Debug("The delivery was failed.");
-                        restStatus.ProcessMessage = "Report job was failed";
-                        restStatus.DistributeResult = distManager.ErrorMessage;
-                        restStatus.JobResultJson = JsonConvert.SerializeObject(GetResults(taskId));
+                        logger.Debug("No distribute result.");
+                        restStatus.ErrorMessage = distManager.ErrorMessage;
+                        restStatus.JsonJobResults = JsonConvert.SerializeObject(GetResults(taskId));
                         restStatus.Status = -1;
                     }
+
+                    restTask.Finish = true;
+                    restTask.EndTime = DateTime.Now;
                     logger.Debug($"Cleanup old rest tasks...");
                     Cleanup();
                     WorkingCount--;
@@ -221,7 +224,9 @@
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, $"The task {taskId} failed.");
+                    logger.Error(ex, $"The rest task '{taskId}' has a fatal error.");
+                    if (restTask != null)
+                        restTask.EndTime = DateTime.Now;
                 }
             });
             return taskId;
@@ -326,8 +331,8 @@
                 foreach (var keypair in taskPool.ToList())
                 {
                     var restTask = keypair.Value;
-                    var span = restTask.StartTime - restTask.EndTime;
-                    if (span.TotalSeconds >= 15)
+                    var span = DateTime.Now - restTask.EndTime;
+                    if (span.TotalSeconds >= 15 && restTask.Finish)
                         taskPool.TryRemove(keypair);
                 }
             }

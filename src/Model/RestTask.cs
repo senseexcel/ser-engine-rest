@@ -32,8 +32,8 @@
         public DateTime EndTime { get; set; }
 
         /// <summary>
-        /// Remove task by cleanup
+        /// task ist finish
         /// </summary>
-        public bool Remove { get; set; }
+        public bool Finish { get; set; }
     }
 }
