@@ -197,20 +197,22 @@
 
                     restStatus.Status = 2;
                     restStatus.ProcessMessage = "Report job is distributed...";
+                    var jobResults = GetResults(taskId, true);
                     var distManager = new DistributeManager();
-                    var distResult = distManager.Run(GetResults(taskId, true), tokenSource.Token);
+                    var distResult = distManager.Run(jobResults, tokenSource.Token);
+                    jobResults.ForEach(j => j.Reports.ToList().ForEach(r => r.Data = null));
                     if (distResult != null)
                     {
                         logger.Debug($"Distribute result: '{distResult}'");
                         restStatus.DistributeResult = distResult;
-                        restStatus.JsonJobResults = JsonConvert.SerializeObject(GetResults(taskId));
+                        restStatus.JsonJobResults = JsonConvert.SerializeObject(jobResults);
                         restStatus.Status = 3;
                     }
                     else
                     {
                         logger.Debug("No distribute result.");
                         restStatus.ErrorMessage = distManager.ErrorMessage;
-                        restStatus.JsonJobResults = JsonConvert.SerializeObject(GetResults(taskId));
+                        restStatus.JsonJobResults = JsonConvert.SerializeObject(jobResults);
                         restStatus.Status = -1;
                     }
 
