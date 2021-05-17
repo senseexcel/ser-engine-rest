@@ -6,12 +6,14 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using NLog;
     using Prometheus;
     using Ser.Api;
+    using Ser.Distribute;
     using Ser.Engine.Jobs;
     using Ser.Engine.Rest.Model;
     #endregion
@@ -31,12 +33,17 @@
         public Guid RunTask(string taskConfig, Guid taskId);
 
         /// <summary>
-        /// Get Status from Task(s)
+        /// Get Status from special Task
         /// </summary>
         /// <param name="taskId">Task id</param>
-        /// <param name="taskStatus">Task status</param>
-        /// <returns>Return a serialize json string</returns>
-        public string GetTasks(Guid? taskId = null, TaskStatusInfo? taskStatus = null);
+        /// <returns>Return the Task status</returns>
+        public RestTaskStatus GetTaskStatus(Guid taskId);
+
+        /// <summary>
+        /// Get all status from Tasks
+        /// </summary>
+        /// <returns>Return a list of all status</returns>
+        public List<RestTaskStatus> GetAllTaskStatus();
 
         /// <summary>
         /// Stop task(s)
@@ -62,19 +69,10 @@
         #endregion
 
         #region Properties && Variables
-        private readonly ConcurrentDictionary<Guid, JobManager> managerPool;
+        private readonly ConcurrentDictionary<Guid, RestTask> taskPool;
         private readonly Counter taskCounter = null;
-        private readonly object threadlock = new object();
-
-        /// <summary>
-        /// Reporting Options
-        /// </summary>
-        public ReportingServiceOptions Options { get; set; }
-
-        /// <summary>
-        /// Current working jobs
-        /// </summary>
-        public int WorkingCount { get; private set; }
+        private int WorkingCount { get; set; }
+        private ReportingServiceOptions Options { get; set; }
         #endregion
 
         #region Constructor
@@ -85,9 +83,8 @@
         public ReportingService(ReportingServiceOptions options)
         {
             Options = options ?? throw new Exception("No reporting options found.");
-            managerPool = new ConcurrentDictionary<Guid, JobManager>();
+            taskPool = new ConcurrentDictionary<Guid, RestTask>();
             WorkingCount = 0;
-
             taskCounter = Metrics.CreateCounter($"workerGauge", "Number of tasks", new CounterConfiguration()
             {
                 LabelNames = new[] { "worker" }
@@ -100,11 +97,6 @@
         {
             var args = new string[] { $"--workdir={workdir}" };
             return new AppParameter(args);
-        }
-
-        private static JobManager CreateManager(string workdir)
-        {
-            return new JobManager(GetJobParameter(workdir));
         }
 
         private static void CopyFiles(string sourceFolder, string targetFolder)
@@ -122,7 +114,7 @@
                     var destFile = Path.Combine(targetFolder, relPath);
                     Directory.CreateDirectory(Path.GetDirectoryName(destFile));
                     logger.Debug($"Copy File: {copyFile} to {destFile}");
-                    System.IO.File.Copy(copyFile, destFile, true);
+                    File.Copy(copyFile, destFile, true);
                 }
             }
             catch (Exception ex)
@@ -131,13 +123,34 @@
             }
         }
 
-        private void StopAllJobs()
+        private List<JobResult> GetResults(Guid taskId, bool readfileData = false)
         {
-            logger.Debug("Stop all jobs.");
-            foreach (var manager in managerPool)
-                manager.Value?.Stop();
-            WorkingCount = 0;
-            taskCounter.Inc(WorkingCount);
+            var results = new List<JobResult>();
+
+            try
+            {
+                logger.Debug($"Get the results of the Task {taskId}.");
+                var taskFolder = Path.Combine(Options.TempFolder, taskId.ToString());
+
+                logger.Trace($"Job result \"{taskFolder}\".");
+                var para = GetJobParameter(taskFolder);
+                results.AddRange(ReportingTask.GetAllResultsFromJob(para));
+
+                if (readfileData)
+                {
+                    foreach (var result in results)
+                        foreach (var report in result.Reports)
+                            foreach (var path in report.Paths)
+                                report.Data.Add(new ReportData() { Filename = Path.GetFileName(path), DownloadData = File.ReadAllBytes(path) });
+                }
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "The task result could not found.");
+                return results;
+            }
         }
         #endregion
 
@@ -149,13 +162,22 @@
         /// <param name="taskId">Id of the task</param>
         public Guid RunTask(string taskConfig, Guid taskId)
         {
-            WorkingCount++;
-            taskCounter.Inc(WorkingCount);
             Task.Run(() =>
             {
+                var restTask = new RestTask();
+
                 try
                 {
-                    logger.Debug($"START - {taskId}");
+                    logger.Debug($"Start rest task with id {taskId}...");
+                    WorkingCount++;
+                    taskCounter.Inc(WorkingCount);
+                    var restStatus = new RestTaskStatus() { Status = 1, ProcessMessage = "Report job will be started...." };
+                    var tokenSource = new CancellationTokenSource();
+                    restTask = new RestTask() { TokenSource = tokenSource, TaskStatus = restStatus, StartTime = DateTime.Now };
+                    taskPool.TryAdd(taskId, restTask);
+
+                    restStatus.Status = 1;
+                    restStatus.ProcessMessage = "Report job is running...";
                     var taskFolder = Path.Combine(Options.TempFolder, taskId.ToString());
                     Directory.CreateDirectory(taskFolder);
                     var jObject = JObject.Parse(taskConfig) as dynamic;
@@ -169,64 +191,47 @@
                             CopyFiles(uploadFolder, taskFolder);
                         }
                     }
-
                     logger.Debug($"The Task {taskId} was started.");
-                    var manager = CreateManager(taskFolder);
-                    managerPool.TryAdd(taskId, manager);
-                    manager.Run(taskConfig?.ToString(), taskId.ToString());
-                    logger.Debug($"The Task {taskId} was finished.");
-                    managerPool.TryRemove(taskId, out manager);
+                    var manager = new JobManager(GetJobParameter(taskFolder));
+                    manager.Run(taskConfig?.ToString(), taskId.ToString(), tokenSource.Token);
+
+                    restStatus.Status = 2;
+                    restStatus.ProcessMessage = "Report job is distributed...";
+                    var jobResults = GetResults(taskId, true);
+                    var distManager = new DistributeManager();
+                    var distResult = distManager.Run(jobResults, tokenSource.Token);
+                    jobResults.ForEach(j => j.Reports.ToList().ForEach(r => r.Data = null));
+                    if (distResult != null)
+                    {
+                        logger.Debug($"Distribute result: '{distResult}'");
+                        restStatus.DistributeResult = distResult;
+                        restStatus.JsonJobResults = JsonConvert.SerializeObject(jobResults);
+                        restStatus.Status = 3;
+                    }
+                    else
+                    {
+                        logger.Debug("No distribute result.");
+                        restStatus.ErrorMessage = distManager.ErrorMessage;
+                        restStatus.JsonJobResults = JsonConvert.SerializeObject(jobResults);
+                        restStatus.Status = -1;
+                    }
+
+                    restTask.Finish = true;
+                    restTask.EndTime = DateTime.Now;
+                    logger.Debug($"Cleanup old rest tasks...");
+                    Cleanup();
                     WorkingCount--;
                     taskCounter.Inc(WorkingCount);
+                    logger.Debug($"The Task {taskId} was finished.");
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, $"The task {taskId} failed.");
+                    logger.Error(ex, $"The rest task '{taskId}' has a fatal error.");
+                    if (restTask != null)
+                        restTask.EndTime = DateTime.Now;
                 }
             });
             return taskId;
-        }
-
-        /// <summary>
-        /// Get the engine results
-        /// </summary>
-        /// <param name="taskId">Id of the task</param>
-        /// <param name="taskStatus">Select a special status</param>
-        /// <returns>Return a serialize json string</returns>
-        public string GetTasks(Guid? taskId = null, TaskStatusInfo? taskStatus = null)
-        {
-            var results = new List<JobResult>();
-
-            try
-            {
-                var folders = new List<string>();
-                if (taskId.HasValue)
-                {
-                    logger.Debug($"Get the results of the Task {taskId.Value}.");
-                    folders.Add(Path.Combine(Options.TempFolder, taskId.Value.ToString()));
-                }
-                else
-                {
-                    logger.Debug($"Get the result of all tasks.");
-                    folders.AddRange(Directory.GetDirectories(Options.TempFolder, "*.*", SearchOption.TopDirectoryOnly));
-                }
-
-                foreach (var folder in folders)
-                {
-                    logger.Trace($"Job result \"{folder}\".");
-                    var para = GetJobParameter(folder);
-                    if (taskStatus.HasValue)
-                        results.AddRange(ReportingTask.GetAllResultsFromJob(para).Where(t => t.Status == taskStatus.Value));
-                    else
-                        results.AddRange(ReportingTask.GetAllResultsFromJob(para));
-                }
-                return JsonConvert.SerializeObject(results);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "The task result could not found.");
-                return JsonConvert.SerializeObject(results);
-            }
         }
 
         /// <summary>
@@ -236,34 +241,106 @@
         /// <returns>Get status</returns>
         public void StopTasks(Guid? taskId = null)
         {
-            if (taskId.HasValue)
+            try
             {
-                var key = managerPool?.Keys?.ToList()?.FirstOrDefault(t => t.ToString() == taskId?.ToString()) ?? new Guid();
-                if (key == Guid.Empty)
-                    return;
-
-                var manager = managerPool[key];
-                if (manager != null)
+                if (taskId.HasValue)
                 {
-                    var task = manager?.Tasks.FirstOrDefault(t => t.JobParameters.WorkDir.Contains(taskId.ToString())) ?? null;
-                    if (task != null)
-                    {
-                        manager?.Stop();
-                        logger.Debug($"The task {taskId.Value} was stopped.");
+                    var key = taskPool?.Keys?.ToList()?.FirstOrDefault(t => t.ToString() == taskId?.ToString()) ?? new Guid();
+                    if (key == Guid.Empty)
                         return;
+
+                    var restTask = taskPool[key];
+                    if (restTask != null)
+                    {
+                        restTask.TaskStatus.ProcessMessage = "Report job will be stopped...";
+                        restTask.TaskStatus.Status = 4;
+                        restTask.TokenSource.Cancel();
+                        logger.Debug($"The rest task {taskId} was stopped.");
                     }
                     else
-                        logger.Warn($"The task {taskId.Value} was not found.");
+                        logger.Debug($"No rest task with id {taskId.Value} found.");
                 }
                 else
-                    logger.Debug($"No job manager with id {taskId.Value} found.");
+                {
+                    logger.Debug("Stop all rest tasks.");
+                    foreach (var restTaskValue in taskPool.Values)
+                        restTaskValue.TokenSource?.Cancel();
+                    WorkingCount = 0;
+                    taskCounter.Inc(WorkingCount);
+                    logger.Debug($"All rest tasks was stopped.");
+                    return;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                StopAllJobs();
-                WorkingCount = 0;
-                logger.Debug($"All tasks was stopped.");
-                return;
+                logger.Error(ex, "Stop rest jobs failed.");
+            }
+        }
+
+        /// <summary>
+        /// Get all rest tasks status
+        /// </summary>
+        /// <returns></returns>
+        public List<RestTaskStatus> GetAllTaskStatus()
+        {
+            try
+            {
+                var results = new List<RestTaskStatus>();
+                foreach (var value in taskPool.Values)
+                    results.Add(value.TaskStatus);
+                return results;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Get rest all status failed.");
+                return new List<RestTaskStatus>();
+            }
+        }
+
+        /// <summary>
+        /// Get the full status of a reporting task engine + distribute
+        /// </summary>
+        /// <param name="taskId">Task id</param>
+        /// <returns>Status object</returns>
+        public RestTaskStatus GetTaskStatus(Guid taskId)
+        {
+            try
+            {
+                if (taskPool.TryGetValue(taskId, out var restTask))
+                {
+                    logger.Debug($"Get rest task status: '{JsonConvert.SerializeObject(restTask?.TaskStatus, Formatting.Indented)}'");
+                    return restTask?.TaskStatus;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Get rest status failed.");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Cleanup Task Status
+        /// </summary>
+        public void Cleanup()
+        {
+            try
+            {
+                if (taskPool.IsEmpty)
+                    return;
+
+                foreach (var keypair in taskPool.ToList())
+                {
+                    var restTask = keypair.Value;
+                    var span = DateTime.Now - restTask.EndTime;
+                    if (span.TotalSeconds >= 15 && restTask.Finish)
+                        taskPool.TryRemove(keypair);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Rest Cleanup failed.");
             }
         }
 
@@ -273,9 +350,9 @@
         /// <returns>health status</returns>
         public string HealthStatus()
         {
-            var status = "ready";
+            var status = "Ready";
             if (WorkingCount > 0)
-                status = "running";
+                status = $"Running with {WorkingCount} task(s)";
             return status;
         }
         #endregion
