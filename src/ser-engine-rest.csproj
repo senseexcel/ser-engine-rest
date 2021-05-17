@@ -2,43 +2,55 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <Authors>akquinet finance &amp; controlling GmbH</Authors>
     <Company>akquinet finance &amp; controlling GmbH</Company>
     <Copyright>Copyright (c) $([System.DateTime]::Today.ToString('yyyy'))</Copyright>
     <RootNamespace>Ser.Engine.Rest</RootNamespace>
-    <Version>$(GitVersion_InformationalVersion)</Version>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PackageId>Ser.Engine.Rest</PackageId>
-    <ApplicationIcon />
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DocumentationFile>SerEngineRest.xml</DocumentationFile>
-    <IsPackable>true</IsPackable>
     <AssemblyName>SerEngineRest</AssemblyName>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IsPackable>true</IsPackable>
+    <AssemblyVersion>5.2.0.0</AssemblyVersion>
+    <FileVersion>5.2.0.0</FileVersion>
+    <UserSecretsId>4eec494c-0b1a-4bb7-8add-b54581ddaec0</UserSecretsId>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Users\MBerthold\Documents\Entwicklung\Reporting\ser-engine-rest\src\SerEngineRest.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\MBerthold\Documents\Entwicklung\Reporting\ser-engine-rest\src\SerEngineRest.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Working\**" />
+    <Compile Remove="wwwroot\**" />
+    <Content Remove="Working\**" />
+    <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="Working\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="Working\**" />
+    <None Remove="wwwroot\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="SerEngineRest.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hjson" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NLog" Version="4.7.5" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.6.5" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.9.3" />
-    <PackageReference Include="prometheus-net" Version="3.6.0" />
-    <PackageReference Include="prometheus-net.AspNetCore" Version="3.6.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.6.3" />
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
-    <PackageReference Include="GitVersionTask" Version="5.3.7">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NLog" Version="4.7.9" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.2" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.12.0" />
+    <PackageReference Include="prometheus-net" Version="4.1.1" />
+    <PackageReference Include="prometheus-net.AspNetCore" Version="4.1.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.1.4" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,33 +65,26 @@
     </None>
   </ItemGroup>
 
-  <Choose>
-    <When Condition="'$(Configuration)' == 'Release'">
-      <ItemGroup>
-        <Reference Include="Ser.Api">
-          <HintPath>..\..\ser-api\src\bin\Release\$(TargetFramework)\SerApi.dll</HintPath>
-        </Reference>
-        <Reference Include="Ser.Engine">
-          <HintPath>..\..\ser-engine\src\bin\Release\$(TargetFramework)\ser-engine.dll</HintPath>
-          <EmbedInteropTypes></EmbedInteropTypes>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="Ser.Api">
-          <HintPath>..\..\ser-api\src\bin\Debug\$(TargetFramework)\SerApi.dll</HintPath>
-        </Reference>
-        <Reference Include="Ser.Engine">
-          <HintPath>..\..\ser-engine\src\bin\Debug\$(TargetFramework)\ser-engine.dll</HintPath>
-          <EmbedInteropTypes></EmbedInteropTypes>
-        </Reference>
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+  <ItemGroup>
+    <Reference Include="Ser.Api">
+      <HintPath>..\..\ser-api\src\bin\$(Configuration)\$(TargetFramework)\SerApi.dll</HintPath>
+    </Reference>
+    <Reference Include="Ser.Engine">
+      <HintPath>..\..\ser-engine\src\bin\$(Configuration)\$(TargetFramework)\ser-engine.dll</HintPath>
+    </Reference>
+    <Reference Include="enigma.net">
+      <HintPath>..\..\..\QlikAPIs\enigma.net\src\bin\$(Configuration)\$(TargetFramework)\enigma.net.dll</HintPath>
+    </Reference>
+    <Reference Include="SerDistribute">
+      <HintPath>..\..\ser-distribute\src\bin\$(Configuration)\$(TargetFramework)\SerDistribute.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
-  <Target Name="GitVersion" BeforeTargets="AfterBuild">
-    <Message Importance="High" Text="++++++ GitVersion: $(GitVersion_InformationalVersion) ++++++" />
+  <Target Name="ShowAssemblyVersion" BeforeTargets="AfterBuild">
+    <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
+      <Output TaskParameter="Assemblies" ItemName="MyAssemblyIdentities" />
+    </GetAssemblyIdentity>
+    <Message Importance="High" Text="++++++ AssemblyVersion: %(MyAssemblyIdentities.Version) ++++++" />
   </Target>
 
 </Project>
