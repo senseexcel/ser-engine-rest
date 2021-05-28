@@ -2,6 +2,8 @@
 {
     #region Usings
     using System;
+    using System.IO;
+    using System.Reflection;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
     using NLog;
@@ -18,6 +20,15 @@
         private static Logger logger = LogManager.GetCurrentClassLogger();
         #endregion
 
+        #region Private Methods
+        private static string Getversion(Version version)
+        {
+            if (version == null)
+                return "unknown";
+            return $"{version.Major}.{version.Minor}.{version.Build}";
+        }
+        #endregion
+
         #region Public Methods
         /// <summary>
         /// Main entry method
@@ -29,6 +40,13 @@
             {
                 //Activate Nlog logger with configuration
                 logger = NLogBuilder.ConfigureNLog("App.config").GetCurrentClassLogger();
+
+                if (args.Length > 0 && args[0] == "VersionNumber")
+                {
+                    var appVersion = Getversion(Assembly.GetExecutingAssembly().GetName().Version);
+                    File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "Version.txt"), appVersion);
+                    return;
+                }
 
                 // Use as Windows Service
                 ServiceRunner<WebService>.Run(config =>
