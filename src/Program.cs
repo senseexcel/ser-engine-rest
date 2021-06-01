@@ -3,7 +3,9 @@
     #region Usings
     using System;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
+    using System.Threading.Tasks;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
     using NLog;
@@ -48,35 +50,55 @@
                     return;
                 }
 
-                // Use as Windows Service
-                ServiceRunner<WebService>.Run(config =>
+                var runAsService = true;
+                if (args.Length > 0 && args[0] == "--Mode=NoService")
                 {
-                    config.SetDisplayName("AnalyticsGate Rest Service");
-                    config.SetDescription("Rest Service for AnalyticsGate Reporting");
-                    var name = config.GetDefaultName();
-                    config.Service(serviceConfig =>
+                    logger.Debug("Run Nativ...");
+                    runAsService = false;
+                    var argList = args.ToList();
+                    argList.RemoveAt(0);
+                    args = argList.ToArray();
+                }
+
+                if (runAsService)
+                {
+                    // Use as Windows Service
+                    logger.Debug("Run as service...");
+                    ServiceRunner<WebService>.Run(config =>
                     {
-                        serviceConfig.ServiceFactory((extraArguments, controller) =>
+                        config.SetDisplayName("AnalyticsGate Rest Service");
+                        config.SetDescription("Rest Service for AnalyticsGate Reporting");
+                        var name = config.GetDefaultName();
+                        config.Service(serviceConfig =>
                         {
-                            var webService = new WebService(args);
-                            return webService;
-                        });
-                        serviceConfig.OnStart((service, extraParams) =>
-                        {
-                            logger.Debug($"Service {name} started...");
-                            service.Start();
-                        });
-                        serviceConfig.OnStop(service =>
-                        {
-                            logger.Debug($"Service {name} stopped...");
-                            service.Stop();
-                        });
-                        serviceConfig.OnError(ex =>
-                        {
-                            logger.Error($"Service Exception: {ex}");
+                            serviceConfig.ServiceFactory((extraArguments, controller) =>
+                            {
+                                var webService = new WebService(args);
+                                return webService;
+                            });
+                            serviceConfig.OnStart((service, extraParams) =>
+                            {
+                                logger.Debug($"Service {name} started...");
+                                service.Start();
+                            });
+                            serviceConfig.OnStop(service =>
+                            {
+                                logger.Debug($"Service {name} stopped...");
+                                service.Stop();
+                            });
+                            serviceConfig.OnError(ex =>
+                            {
+                                logger.Error($"Service Exception: {ex}");
+                            });
                         });
                     });
-                });
+                }
+                else
+                {
+                    var webService = new WebService(args);
+                    webService.Start();
+                    webService.ProcessTask.Wait();
+                }
 
                 Environment.Exit(0);
             }

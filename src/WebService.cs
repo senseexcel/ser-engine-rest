@@ -30,6 +30,7 @@
         /// CMD Arguments
         /// </summary>
         public static string[] Arguments { get; private set; }
+        public Task ProcessTask { get; private set; }
         #endregion
 
         #region Constructor
@@ -62,32 +63,39 @@
         {
             try
             {
-                Task.Run(() =>
+                ProcessTask = Task.Run(() =>
                 {
-                    //Build config for webserver
-                    var config = new ConfigurationBuilder()
-                        .SetBasePath(AppContext.BaseDirectory)
-                        .AddEnvironmentVariables()
-                        .AddCommandLine(Arguments)
-                        .Build();
+                    try
+                    {
+                        //Build config for webserver
+                        var config = new ConfigurationBuilder()
+                            .SetBasePath(AppContext.BaseDirectory)
+                            .AddEnvironmentVariables()
+                            .AddCommandLine(Arguments)
+                            .Build();
 
-                    //Start the web server
-                    CreateHostBuilder(Arguments)
-                         .UseKestrel()
-                         .ConfigureAppConfiguration((builderContext, config) =>
-                         {
-                             config.AddJsonFile("appsettings.json", optional: false);
-                         })
-                         .UseConfiguration(config)
-                         .UseContentRoot(Directory.GetCurrentDirectory())
-                         .ConfigureLogging(logging =>
-                         {
-                             logging.ClearProviders();
-                             logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-                         })
-                         .UseNLog()
-                         .Build()
-                         .Run();
+                        //Start the web server
+                        CreateHostBuilder(Arguments)
+                             .UseKestrel()
+                             .ConfigureAppConfiguration((builderContext, config) =>
+                             {
+                                 config.AddJsonFile("appsettings.json", optional: false);
+                             })
+                             .UseConfiguration(config)
+                             .UseContentRoot(Directory.GetCurrentDirectory())
+                             .ConfigureLogging(logging =>
+                             {
+                                 logging.ClearProviders();
+                                 logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                             })
+                             .UseNLog()
+                             .Build()
+                             .Run();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex);
+                    }
                 }, cts.Token);
             }
             catch (Exception ex)
