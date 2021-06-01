@@ -30,6 +30,10 @@
         /// CMD Arguments
         /// </summary>
         public static string[] Arguments { get; private set; }
+
+        /// <summary>
+        /// Processing Task for Waiting
+        /// </summary>
         public Task ProcessTask { get; private set; }
         #endregion
 
