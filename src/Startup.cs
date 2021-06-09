@@ -66,6 +66,8 @@ namespace Ser.Engine.Rest
                 }
 
                 var tempFolder = Configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
+                if (tempFolder.TrimEnd('/', '\\') == AppContext.BaseDirectory.TrimEnd('/', '\\'))
+                    tempFolder = Path.Combine(Path.GetTempPath(), "RestService");
                 Directory.CreateDirectory(tempFolder);
 
                 var reportingOptions = new ReportingServiceOptions() { TempFolder = tempFolder };
