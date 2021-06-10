@@ -40,6 +40,24 @@ namespace Ser.Engine.Rest
         }
         #endregion
 
+        #region Private Methods
+        /// <summary>
+        /// Clenup temp folder
+        /// </summary>
+        /// <param name="folder">temporary folder</param>
+        public static void SoftCleanup(string folder)
+        {
+            try
+            {
+                Directory.Delete(folder, true);
+            }
+            catch
+            {
+                logger.Info($"Cloud not delete folder '{folder}'...");
+            }
+        }
+        #endregion
+
         #region Configuration part
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
@@ -67,7 +85,11 @@ namespace Ser.Engine.Rest
 
                 var tempFolder = Configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
                 if (tempFolder.TrimEnd('/', '\\') == AppContext.BaseDirectory.TrimEnd('/', '\\'))
+                {
                     tempFolder = Path.Combine(Path.GetTempPath(), "RestService");
+                    if (Directory.Exists(tempFolder))
+                        SoftCleanup(tempFolder);
+                }
                 Directory.CreateDirectory(tempFolder);
 
                 var reportingOptions = new ReportingServiceOptions() { TempFolder = tempFolder };
