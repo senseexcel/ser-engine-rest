@@ -67,6 +67,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Q2gHelperPem">
+      <HintPath>..\..\q2g-helper-pem\src\bin\$(Configuration)\$(TargetFramework)\Q2gHelperPem.dll</HintPath>
+    </Reference>
     <Reference Include="Ser.Api">
       <HintPath>..\..\ser-api\src\bin\$(Configuration)\$(TargetFramework)\SerApi.dll</HintPath>
     </Reference>

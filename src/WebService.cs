@@ -13,6 +13,7 @@
     using NLog.Web;
     using PeterKottas.DotNetCore.WindowsService.Base;
     using PeterKottas.DotNetCore.WindowsService.Interfaces;
+    using Q2g.HelperPem;
     #endregion
 
     /// <summary>
@@ -76,15 +77,26 @@
                             .SetBasePath(AppContext.BaseDirectory)
                             .AddEnvironmentVariables()
                             .AddCommandLine(Arguments)
+                            .AddJsonFile("appsettings.json", optional: false)
                             .Build();
+
+                        var certificatePathSection = config.GetSection("Kestrel:EndPoints:Https:Certificate:Path");
+                        var certificatePasswordSection = config.GetSection("Kestrel:EndPoints:Https:Certificate:Password");
+                        if (certificatePathSection.Value == null)
+                        {
+                            var appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                            var certFolder = Path.Combine(appdata, "AnalyticsGate", "AGR", "certificates");
+                            var passKey = Path.Combine(certFolder, "AGRRoot.key");
+                            var passDat = Path.Combine(certFolder, "AGRRoot.keypas");
+                            var crypter = new TextCrypter(passKey);
+                            var password = crypter.DecryptText(File.ReadAllText(passDat));
+                            certificatePathSection.Value = Path.Combine(certFolder, "AGRRoot.pfx");
+                            certificatePasswordSection.Value = password;
+                        }
 
                         //Start the web server
                         CreateHostBuilder(Arguments)
                              .UseKestrel()
-                             .ConfigureAppConfiguration((builderContext, config) =>
-                             {
-                                 config.AddJsonFile("appsettings.json", optional: false);
-                             })
                              .UseConfiguration(config)
                              .UseContentRoot(Directory.GetCurrentDirectory())
                              .ConfigureLogging(logging =>
