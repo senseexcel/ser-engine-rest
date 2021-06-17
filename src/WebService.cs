@@ -33,6 +33,11 @@
         public static string[] Arguments { get; private set; }
 
         /// <summary>
+        /// Run as service or not
+        /// </summary>
+        public static bool RunAsService { get; private set; }
+
+        /// <summary>
         /// Processing Task for Waiting
         /// </summary>
         public Task ProcessTask { get; private set; }
@@ -43,9 +48,11 @@
         /// web service constructor
         /// </summary>
         /// <param name="args">cmd arguments</param>
-        public WebService(string[] args)
+        /// <param name="runAsService">Run as Service</param>
+        public WebService(string[] args, bool runAsService)
         {
             Arguments = args;
+            RunAsService = runAsService;
         }
         #endregion
 
@@ -80,18 +87,21 @@
                             .AddJsonFile("appsettings.json", optional: false)
                             .Build();
 
-                        var certificatePathSection = config.GetSection("Kestrel:EndPoints:Https:Certificate:Path");
-                        var certificatePasswordSection = config.GetSection("Kestrel:EndPoints:Https:Certificate:Password");
-                        if (certificatePathSection.Value == null)
+                        if (RunAsService)
                         {
-                            var appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                            var certFolder = Path.Combine(appdata, "AnalyticsGate", "AGR", "certificates");
-                            var passKey = Path.Combine(certFolder, "AGRRoot.key");
-                            var passDat = Path.Combine(certFolder, "AGRRoot.keypas");
-                            var crypter = new TextCrypter(passKey);
-                            var password = crypter.DecryptText(File.ReadAllText(passDat));
-                            certificatePathSection.Value = Path.Combine(certFolder, "AGRRoot.pfx");
-                            certificatePasswordSection.Value = password;
+                            var certificatePathSection = config.GetSection("Kestrel:EndPoints:Https:Certificate:Path");
+                            var certificatePasswordSection = config.GetSection("Kestrel:EndPoints:Https:Certificate:Password");
+                            if (certificatePathSection.Value == null)
+                            {
+                                var appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                                var certFolder = Path.Combine(appdata, "AnalyticsGate", "AGR", "certificates");
+                                var passKey = Path.Combine(certFolder, "AGRRoot.key");
+                                var passDat = Path.Combine(certFolder, "AGRRoot.keypas");
+                                var crypter = new TextCrypter(passKey);
+                                var password = crypter.DecryptText(File.ReadAllText(passDat));
+                                certificatePathSection.Value = Path.Combine(certFolder, "AGRRoot.pfx");
+                                certificatePasswordSection.Value = password;
+                            }
                         }
 
                         //Start the web server

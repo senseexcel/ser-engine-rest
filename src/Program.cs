@@ -73,7 +73,7 @@
                         {
                             serviceConfig.ServiceFactory((extraArguments, controller) =>
                             {
-                                var webService = new WebService(args);
+                                var webService = new WebService(args, true);
                                 return webService;
                             });
                             serviceConfig.OnStart((service, extraParams) =>
@@ -95,7 +95,7 @@
                 }
                 else
                 {
-                    var webService = new WebService(args);
+                    var webService = new WebService(args, false);
                     webService.Start();
                     webService.ProcessTask.Wait();
                 }
