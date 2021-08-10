@@ -11,8 +11,8 @@
     <AssemblyName>SerEngineRest</AssemblyName>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IsPackable>true</IsPackable>
-    <AssemblyVersion>5.1.4.0</AssemblyVersion>
-    <FileVersion>5.1.4.0</FileVersion>
+    <AssemblyVersion>5.1.6.0</AssemblyVersion>
+    <FileVersion>5.1.6.0</FileVersion>
     <UserSecretsId>4eec494c-0b1a-4bb7-8add-b54581ddaec0</UserSecretsId>
   </PropertyGroup>
 
