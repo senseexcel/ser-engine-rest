@@ -94,7 +94,7 @@
                             if (certificatePathSection.Value == null)
                             {
                                 var appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                                var certFolder = Path.Combine(appdata, "AnalyticsGate", "AGR", "certificates");
+                                var certFolder = Path.Combine(appdata, "AnalyticsGate", "AGCR", "certificates");
                                 var passKey = Path.Combine(certFolder, "AGRRoot.key");
                                 var passDat = Path.Combine(certFolder, "AGRRoot.keypas");
                                 var crypter = new TextCrypter(passKey);

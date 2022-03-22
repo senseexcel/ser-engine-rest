@@ -11,17 +11,18 @@
     <AssemblyName>SerEngineRest</AssemblyName>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IsPackable>true</IsPackable>
-    <AssemblyVersion>5.1.9.0</AssemblyVersion>
-    <FileVersion>5.1.9.0</FileVersion>
+    <AssemblyVersion>5.2.1.0</AssemblyVersion>
+    <FileVersion>5.2.1.0</FileVersion>
     <UserSecretsId>4eec494c-0b1a-4bb7-8add-b54581ddaec0</UserSecretsId>
+    <ApplicationIcon>Service.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\MBerthold\Documents\Entwicklung\Reporting\ser-engine-rest\src\SerEngineRest.xml</DocumentationFile>
+    <DocumentationFile>SerEngineRest.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\MBerthold\Documents\Entwicklung\Reporting\ser-engine-rest\src\SerEngineRest.xml</DocumentationFile>
+    <DocumentationFile>SerEngineRest.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,25 +41,33 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Service.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.27.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.11" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NLog" Version="4.7.12" />
+    <PackageReference Include="NLog" Version="4.7.13" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
     <PackageReference Include="PeterKottas.DotNetCore.WindowsService" Version="2.0.12" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-    <PackageReference Include="prometheus-net" Version="5.0.1" />
-    <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.1" />
+    <PackageReference Include="prometheus-net" Version="5.0.2" />
+    <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.2.3" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
-    <PackageReference Include="System.Resources.Extensions" Version="5.0.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Update="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
@@ -79,7 +88,7 @@
       <HintPath>..\..\ser-engine\src\bin\$(Configuration)\$(TargetFramework)\ser-engine.dll</HintPath>
     </Reference>
     <Reference Include="enigma.net">
-      <HintPath>..\..\..\QlikAPIs\enigma.net\src\bin\$(Configuration)\$(TargetFramework)\enigma.net.dll</HintPath>
+      <HintPath>..\..\..\..\QlikAPIs\enigma.net\src\bin\$(Configuration)\$(TargetFramework)\enigma.net.dll</HintPath>
     </Reference>
     <Reference Include="SerDistribute">
       <HintPath>..\..\ser-distribute\src\bin\$(Configuration)\$(TargetFramework)\SerDistribute.dll</HintPath>
