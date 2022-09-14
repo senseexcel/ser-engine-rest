@@ -88,7 +88,7 @@
       <HintPath>..\..\ser-engine\src\bin\$(Configuration)\$(TargetFramework)\ser-engine.dll</HintPath>
     </Reference>
     <Reference Include="enigma.net">
-      <HintPath>..\..\..\..\QlikAPIs\enigma.net\src\bin\$(Configuration)\$(TargetFramework)\enigma.net.dll</HintPath>
+      <HintPath>..\..\..\..\..\QlikAPIs\00_Temp\enigma.net\src\bin\$(Configuration)\$(TargetFramework)\enigma.net.dll</HintPath>
     </Reference>
     <Reference Include="SerDistribute">
       <HintPath>..\..\ser-distribute\src\bin\$(Configuration)\$(TargetFramework)\SerDistribute.dll</HintPath>
